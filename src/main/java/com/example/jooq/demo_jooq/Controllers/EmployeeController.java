@@ -1,50 +1,47 @@
 package com.example.jooq.demo_jooq.Controllers;
 
-import com.example.jooq.demo_jooq.Entities.Employee;
+import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
 import com.example.jooq.demo_jooq.Services.EmployeeService;
-import com.sun.org.apache.regexp.internal.RE;
-import org.jooq.Record;
-import org.jooq.Result;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import lombok.AllArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
+@RequestMapping(value = "/employee", produces = "application/json; charset=UTF-8")
+@AllArgsConstructor
 public class EmployeeController {
-     @Autowired
-     EmployeeService service;
 
-    /* Create - post, read - get, update - put, delete - delete */
+    EmployeeService service;
 
-    /*
-    public Employee createEmployee() {
-
+    @PostMapping(path = "/new")
+    @Transactional
+    public EmployeeEntity createEmployee(@RequestBody EmployeeEntity employeeEntity) {
+        return service.createEmployee(employeeEntity);
     }
 
-
-
-    public Employee updateEmployee() {
-
+    @PutMapping(path = "/update/{id}")
+    @Transactional
+    public EmployeeEntity updateEmployee(@PathVariable Integer id, @RequestBody EmployeeEntity employee) {
+        return service.updateEmployee(id, employee);
     }
 
-    public Employee deleteEmployee() {
-
-    }
-    */
-
-
-    @RequestMapping("/getEmployee")
-    public Result<Record> getEmployee() {
-        return service.getEmployee();
+    @PutMapping(path = "/delete")
+    @Transactional
+    public Boolean deleteEmployee(@RequestBody List<Integer> ids) {
+        return service.deleteEmployee(ids);
     }
 
-
-/*
-    @RequestMapping("/getEmployee")
-    public Employee getEmployee() {
-        return new Employee(1, "2","3","4", 5,6 );
+    @GetMapping(path = "/{id}")
+    public EmployeeEntity getEmployee(@PathVariable Integer id) {
+        return service.getEmployee(id);
     }
 
- */
+    @GetMapping(path = "/list")
+    public List<EmployeeEntity> employeeList () {
+        return service.employeeList();
+    }
 
 }

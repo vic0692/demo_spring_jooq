@@ -1,11 +1,12 @@
 package com.example.jooq.demo_jooq.Entities;
 
-import javax.persistence.Entity;
+import lombok.*;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-@Entity
-public class Employee {
+//@Entity
+public class EmployeeEntity {
 
     private @Id
     @GeneratedValue
@@ -14,15 +15,15 @@ public class Employee {
     private String name;
     private String patronymic;
     private Integer organizationId;
-    private Integer superviserId;
+    private Integer supervisorId;
 
-    public Employee(Integer id, String surname, String name, String patronymic, Integer organizationId, Integer superviserId) {
+    public EmployeeEntity(Integer id, String surname, String name, String patronymic, Integer organizationId, Integer supervisorId) {
         this.id = id;
         this.surname = surname;
         this.name = name;
         this.patronymic = patronymic;
         this.organizationId = organizationId;
-        this.superviserId = superviserId;
+        this.supervisorId = supervisorId;
     }
 
     public Integer getId() {
@@ -45,8 +46,8 @@ public class Employee {
         return organizationId;
     }
 
-    public Integer getSuperviserId() {
-        return superviserId;
+    public Integer getSupervisorId() {
+        return supervisorId;
     }
 
     public void setId(Integer id) {
@@ -69,19 +70,14 @@ public class Employee {
         this.organizationId = organizationId;
     }
 
-    public void setSuperviserId(Integer superviserId) {
-        this.superviserId = superviserId;
+    public void setSupervisorId(Integer superviserId) {
+        this.supervisorId = superviserId;
     }
 
     /*patronymic не нулевой длины*/
-    public boolean equal(Employee employee) {
-        if (this.surname == employee.getSurname() && this.name == employee.getName() && this.patronymic != null
-                && employee.getPatronymic() != null && this.patronymic == employee.getPatronymic() && this.organizationId == employee.organizationId) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    public boolean equal(EmployeeEntity employeeEntity) {
+        return this.surname == employeeEntity.getSurname() && this.name == employeeEntity.getName() && this.patronymic != null
+                && employeeEntity.getPatronymic() != null && this.patronymic == employeeEntity.getPatronymic() && this.organizationId == employeeEntity.organizationId;
     }
 
     /* использовать get? */

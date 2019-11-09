@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan({"com.example.jooq.demo_jooq.introduction.db.public_.tables"})
+@ComponentScan({"com.example.jooq.demo_jooq.introduction.db"})
 @EnableTransactionManagement
 @PropertySource({"classpath:application.properties"})
 public class PersistenceContext {

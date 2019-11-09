@@ -1,12 +1,41 @@
 package com.example.jooq.demo_jooq.Services;
 
+import com.example.jooq.demo_jooq.Entities.OrganizationEntity;
+import com.example.jooq.demo_jooq.Repository.OrganizationRepository;
+import com.example.jooq.demo_jooq.introduction.db.tables.Organization;
+import lombok.AllArgsConstructor;
 import org.jooq.DSLContext;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
-@Transactional
+@AllArgsConstructor
 public class OrganizationService {
-    private DSLContext db;
+    OrganizationRepository repository;
+
+    public OrganizationEntity getOrganization(Integer id) {
+        return repository.getOrganization(id);
+    }
+
+    public List<OrganizationEntity> organizationList() {
+        return repository.organizationList();
+    }
+
+    public OrganizationEntity createOrganization(OrganizationEntity organization) {
+        Integer id = repository.createOrganization(organization);
+        return getOrganization(id);
+    }
+
+    public OrganizationEntity updateOrganization(Integer id, OrganizationEntity organization) {
+        Integer idOrganization = repository.updateOrganization(id, organization);
+        return getOrganization(idOrganization);
+    }
+
+    public Boolean deleteOrganization(List<Integer> ids) {
+        return repository.deleteOrganization(ids);
+    }
 }
 

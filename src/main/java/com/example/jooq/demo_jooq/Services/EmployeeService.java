@@ -1,24 +1,36 @@
 package com.example.jooq.demo_jooq.Services;
 
-import com.example.jooq.demo_jooq.Entities.Employee;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Result;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
+import com.example.jooq.demo_jooq.Repository.EmployeeRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
+import java.util.List;
 
 @Service
-@Transactional
+@AllArgsConstructor
 public class EmployeeService {
-    @Autowired
-    private DSLContext dsl;
-    com.example.jooq.demo_jooq.introduction.db.public_.tables.Employee employee = com.example.jooq.demo_jooq.introduction.db.public_.tables.Employee.EMPLOYEE;
+    EmployeeRepository repository;
 
-    public Result<Record> getEmployee() {
-        return dsl.select(employee.fields()).from(employee).fetch();
+    public EmployeeEntity createEmployee(EmployeeEntity employeeEntity) {
+        Integer id = repository.createEmployee(employeeEntity);
+        return getEmployee(id);
     }
 
+    public EmployeeEntity getEmployee(Integer id) {
+        return repository.getEmployee(id);
+    }
+
+    public List<EmployeeEntity> employeeList() {
+        return repository.employeeList();
+    }
+
+    public EmployeeEntity updateEmployee(Integer id, EmployeeEntity employee) {
+        Integer idEmployee = repository.updateEmployee(id, employee);
+        return repository.getEmployee(idEmployee);
+    }
+
+    public Boolean deleteEmployee(List<Integer> ids) {
+        return repository.deleteEmployee(ids);
+    }
 }

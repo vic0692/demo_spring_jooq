@@ -1,28 +1,46 @@
 package com.example.jooq.demo_jooq.Controllers;
 
-import org.springframework.web.bind.annotation.RestController;
+import com.example.jooq.demo_jooq.Entities.OrganizationEntity;
+import com.example.jooq.demo_jooq.Services.OrganizationService;
+import lombok.AllArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
+@RequestMapping(value = "/organization", produces = "application/json; charset=UTF-8")
+@AllArgsConstructor
 public class OrganizationController {
 
-    /* Create - post, read - get, update - put, delete - delete */
+    OrganizationService service;
 
-    /*
-    public Organization getOrganization() {
-
+    @GetMapping(path = "/{id}")
+    public OrganizationEntity getOrganization(@PathVariable Integer id) {
+        return service.getOrganization(id);
     }
 
-    public Organization getOrganization() {
-
+    @GetMapping(path = "/list")
+    public List<OrganizationEntity> organiztionList() {
+        return service.organizationList();
     }
 
-    public Organization updateOrganization() {
-
+    @PostMapping(path = "/new")
+    @Transactional
+    public OrganizationEntity createOrganization(@RequestBody OrganizationEntity organization) {
+        return service.createOrganization(organization);
     }
 
-    public Organization deleteOrganization() {
-
+    @PutMapping(path = "/update/{id}")
+    @Transactional
+    public OrganizationEntity updateOrganization(@PathVariable Integer id, @RequestBody OrganizationEntity organization) {
+        return service.updateOrganization(id, organization);
     }
-    */
+
+    @PutMapping(path = "/delete")
+    @Transactional
+    public Boolean deleteOrganization(@RequestBody List<Integer> ids) {
+        return service.deleteOrganization(ids);
+    }
 
 }
