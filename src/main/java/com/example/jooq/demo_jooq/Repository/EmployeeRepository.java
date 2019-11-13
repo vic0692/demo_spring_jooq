@@ -60,19 +60,7 @@ public class EmployeeRepository {
     }
 
     public void deleteEmployee(List<Integer> ids) {
-        /*if (validateDeleteEmployee(ids)) {
-            ids.removeAll(getAllSupervisorsByIds(ids)); //удалит из ids значения супервизоров
-            dslContext.deleteFrom(EMPLOYEE).where(EMPLOYEE.ID.in(ids));
-            return true;
-        }
-        else {
-            return false;
-        }*/
         dslContext.deleteFrom(EMPLOYEE).where(EMPLOYEE.ID.in(ids));
-    }
-
-    public Boolean validateDeleteEmployee (List<Integer> ids) {
-        return ids.size() > getAllSupervisorsByIds(ids).size();
     }
 
     public List<Integer> getAllSupervisorsByIds(List<Integer> ids) {

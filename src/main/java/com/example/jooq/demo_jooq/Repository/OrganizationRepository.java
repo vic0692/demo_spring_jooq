@@ -49,21 +49,7 @@ public class OrganizationRepository {
     }
 
     public void deleteOrganization(List<Integer> ids) {
-        /*if (validateDeleteOrganization(ids)) {
-            ids.removeAll(getAllParentOrganizationsByIds(ids));
-            dslContext.deleteFrom(ORGANIZATION).where(ORGANIZATION.ID.in(ids)).execute();
-            return true;
-        }
-        else {
-            return false;
-        }*/
-
-        dslContext.deleteFrom(ORGANIZATION).where(ORGANIZATION.ID.in(ids)).execute();
-    }
-
-    public Boolean validateDeleteOrganization(List<Integer> ids)
-    {
-        return ids.size() > getAllParentOrganizationsByIds(ids).size();
+       dslContext.deleteFrom(ORGANIZATION).where(ORGANIZATION.ID.in(ids)).execute();
     }
 
     public List<Integer> getAllParentOrganizationsByIds(List<Integer> ids)

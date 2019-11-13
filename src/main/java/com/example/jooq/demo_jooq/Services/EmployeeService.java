@@ -31,7 +31,7 @@ public class EmployeeService {
     }
 
     public Boolean deleteEmployee(List<Integer> ids) {
-        if (repository.validateDeleteEmployee(ids)) {
+        if (validateDeleteEmployee(ids)) {
             ids.removeAll(repository.getAllSupervisorsByIds(ids));
             repository.deleteEmployee(ids);
             return true;
@@ -39,5 +39,9 @@ public class EmployeeService {
         else {
             return false;
         }
+    }
+
+    public Boolean validateDeleteEmployee (List<Integer> ids) {
+        return ids.size() > repository.getAllSupervisorsByIds(ids).size();
     }
 }
