@@ -35,8 +35,8 @@ public class OrganizationService {
     }
 
     public Boolean deleteOrganization(List<Integer> ids) {
-        if (validateDeleteOrganization(ids)) {
-            ids.removeAll(repository.getAllParentOrganizationsByIds(ids));
+        ids.removeAll(repository.getAllParentOrganizations());
+        if (ids.size() > 0) {
             repository.deleteOrganization(ids);
             return true;
         }
@@ -45,9 +45,5 @@ public class OrganizationService {
         }
     }
 
-    public Boolean validateDeleteOrganization(List<Integer> ids)
-    {
-        return ids.size() > repository.getAllParentOrganizationsByIds(ids).size();
-    }
 }
 

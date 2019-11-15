@@ -56,4 +56,9 @@ public class OrganizationRepository {
     {
         return dslContext.selectDistinct(ORGANIZATION.PARENT_ORGANIZATION).from(ORGANIZATION).where(ORGANIZATION.ID.in(ids)).fetch().into(Integer.TYPE);
     }
+
+    public List<Integer> getAllParentOrganizations()
+    {
+        return dslContext.selectDistinct(ORGANIZATION.PARENT_ORGANIZATION).from(ORGANIZATION).fetch().into(Integer.TYPE);
+    }
 }

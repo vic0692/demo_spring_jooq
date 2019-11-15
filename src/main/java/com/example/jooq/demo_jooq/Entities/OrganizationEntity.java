@@ -5,9 +5,7 @@ import javax.persistence.Id;
 
 public class OrganizationEntity {
 
-    private @Id
-    @GeneratedValue
-    Integer id;
+    private Integer id;
     private String organizationName;
     private Integer parentOrganizationId;
 

@@ -8,9 +8,7 @@ import javax.persistence.Id;
 //@Entity
 public class EmployeeEntity {
 
-    private @Id
-    @GeneratedValue
-    Integer id;
+    private Integer id;
     private String surname;
     private String name;
     private String patronymic;
@@ -25,6 +23,14 @@ public class EmployeeEntity {
         this.organizationId = organizationId;
         this.supervisorId = supervisorId;
     }
+
+    /*public EmployeeEntity(String surname, String name, String patronymic, Integer organizationId, Integer supervisorId) {
+        this.surname = surname;
+        this.name = name;
+        this.patronymic = patronymic;
+        this.organizationId = organizationId;
+        this.supervisorId = supervisorId;
+    }*/
 
     public Integer getId() {
         return id;

@@ -5,7 +5,10 @@ import com.example.jooq.demo_jooq.Repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -31,17 +34,13 @@ public class EmployeeService {
     }
 
     public Boolean deleteEmployee(List<Integer> ids) {
-        if (validateDeleteEmployee(ids)) {
-            ids.removeAll(repository.getAllSupervisorsByIds(ids));
+        ids.removeAll(repository.getAllSupervisors());
+        if (ids.size() > 0) {
             repository.deleteEmployee(ids);
             return true;
         }
         else {
             return false;
         }
-    }
-
-    public Boolean validateDeleteEmployee (List<Integer> ids) {
-        return ids.size() > repository.getAllSupervisorsByIds(ids).size();
     }
 }

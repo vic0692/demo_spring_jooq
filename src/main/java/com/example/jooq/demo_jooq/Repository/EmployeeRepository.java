@@ -60,11 +60,15 @@ public class EmployeeRepository {
     }
 
     public void deleteEmployee(List<Integer> ids) {
-        dslContext.deleteFrom(EMPLOYEE).where(EMPLOYEE.ID.in(ids));
+        dslContext.deleteFrom(EMPLOYEE).where(EMPLOYEE.ID.in(ids)).execute();
     }
 
     public List<Integer> getAllSupervisorsByIds(List<Integer> ids) {
         return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID).from(EMPLOYEE).where(EMPLOYEE.ID.in(ids)).fetch().into(Integer.TYPE);
+    }
+
+    public List<Integer> getAllSupervisors() {
+        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID).from(EMPLOYEE).fetch().into(Integer.TYPE);
     }
 
 }
