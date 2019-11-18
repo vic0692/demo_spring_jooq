@@ -1,9 +1,12 @@
 package com.example.jooq.demo_jooq.Controllers;
 
 import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeSupervisorEntity;
 import com.example.jooq.demo_jooq.Services.EmployeeService;
 
 import lombok.AllArgsConstructor;
+import org.jooq.Record5;
+import org.jooq.Result;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,4 +47,9 @@ public class EmployeeController {
         return service.employeeList();
     }
 
+    @GetMapping(path =  "/listSup")
+    public List<EmployeeSupervisorEntity> employeeListSupervisor()
+    {
+        return service.getEmployeeSupervisor();
+    }
 }

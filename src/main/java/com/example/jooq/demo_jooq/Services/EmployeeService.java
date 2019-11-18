@@ -1,8 +1,11 @@
 package com.example.jooq.demo_jooq.Services;
 
 import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeSupervisorEntity;
 import com.example.jooq.demo_jooq.Repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
+import org.jooq.Record5;
+import org.jooq.Result;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -42,5 +45,9 @@ public class EmployeeService {
         else {
             return false;
         }
+    }
+
+    public List<EmployeeSupervisorEntity> getEmployeeSupervisor() {
+        return repository.getEmployeeSupervisor();
     }
 }
