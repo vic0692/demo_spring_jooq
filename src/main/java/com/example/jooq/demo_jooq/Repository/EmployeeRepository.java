@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import static com.example.jooq.demo_jooq.introduction.db.Sequences.EMPLOYEE_ID_SEQ1;
 import static com.example.jooq.demo_jooq.introduction.db.tables.Employee.EMPLOYEE;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -71,4 +72,7 @@ public class EmployeeRepository {
         return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID).from(EMPLOYEE).fetch().into(Integer.TYPE);
     }
 
+    public Collection<Integer> getEmployeesWithSubordinatesByIds(List<Integer> ids) {
+        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID).from(EMPLOYEE).where(EMPLOYEE.SUPERVISOR_ID.in(ids)).fetch().into(Integer.TYPE);
+    }
 }

@@ -35,7 +35,7 @@ public class OrganizationService {
     }
 
     public Boolean deleteOrganization(List<Integer> ids) {
-        ids.removeAll(repository.getAllParentOrganizations());
+        ids.removeAll(repository.getOrganizationsWithSuborganizationsByIds(ids));
         if (ids.size() > 0) {
             repository.deleteOrganization(ids);
             return true;

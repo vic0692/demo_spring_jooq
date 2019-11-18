@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.example.jooq.demo_jooq.introduction.db.Sequences.ORGANIZATION_ID_SEQ1;
@@ -60,5 +61,9 @@ public class OrganizationRepository {
     public List<Integer> getAllParentOrganizations()
     {
         return dslContext.selectDistinct(ORGANIZATION.PARENT_ORGANIZATION).from(ORGANIZATION).fetch().into(Integer.TYPE);
+    }
+
+    public Collection<Integer> getOrganizationsWithSuborganizationsByIds(List<Integer> ids) {
+        return dslContext.selectDistinct(ORGANIZATION.PARENT_ORGANIZATION).from(ORGANIZATION).where(ORGANIZATION.PARENT_ORGANIZATION.in(ids)).fetch().into(Integer.TYPE);
     }
 }

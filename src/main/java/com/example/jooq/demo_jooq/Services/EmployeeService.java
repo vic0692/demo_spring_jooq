@@ -34,7 +34,7 @@ public class EmployeeService {
     }
 
     public Boolean deleteEmployee(List<Integer> ids) {
-        ids.removeAll(repository.getAllSupervisors());
+        ids.removeAll(repository.getEmployeesWithSubordinatesByIds(ids));
         if (ids.size() > 0) {
             repository.deleteEmployee(ids);
             return true;
