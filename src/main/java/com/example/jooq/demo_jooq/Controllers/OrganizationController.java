@@ -1,5 +1,6 @@
 package com.example.jooq.demo_jooq.Controllers;
 
+import com.example.jooq.demo_jooq.Entities.EmployeeCountEntity;
 import com.example.jooq.demo_jooq.Entities.OrganizationEntity;
 import com.example.jooq.demo_jooq.Services.OrganizationService;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,11 @@ public class OrganizationController {
     @Transactional
     public Boolean deleteOrganization(@RequestBody List<Integer> ids) {
         return service.deleteOrganization(ids);
+    }
+
+    @GetMapping(path = "/listCount")
+    public List<EmployeeCountEntity> getEmployeeCount() {
+        return service.getEmployeeCount();
     }
 
 }

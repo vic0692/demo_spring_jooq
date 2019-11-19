@@ -1,5 +1,6 @@
 package com.example.jooq.demo_jooq.Services;
 
+import com.example.jooq.demo_jooq.Entities.EmployeeCountEntity;
 import com.example.jooq.demo_jooq.Entities.OrganizationEntity;
 import com.example.jooq.demo_jooq.Repository.OrganizationRepository;
 import com.example.jooq.demo_jooq.introduction.db.tables.Organization;
@@ -45,5 +46,8 @@ public class OrganizationService {
         }
     }
 
+    public List<EmployeeCountEntity> getEmployeeCount() {
+        return repository.getEmployeeCount();
+    }
 }
 

@@ -43,13 +43,19 @@ public class EmployeeRepository {
     }
 
     public EmployeeEntity getEmployee(Integer id) {
-        return dslContext.select(EMPLOYEE.fields()).from(EMPLOYEE).where(EMPLOYEE.ID.eq(id)).fetchOneInto(EmployeeEntity.class);
+        return dslContext.select(EMPLOYEE.fields())
+                .from(EMPLOYEE)
+                .where(EMPLOYEE.ID.eq(id))
+                .fetchOneInto(EmployeeEntity.class);
     }
 
 
     public List<EmployeeEntity> employeeList() {
         /*нужен пейджинг и фильграция*/
-        return dslContext.select(EMPLOYEE.fields()).from(EMPLOYEE).fetch().into(EmployeeEntity.class);
+        return dslContext.select(EMPLOYEE.fields())
+                .from(EMPLOYEE)
+                .fetch()
+                .into(EmployeeEntity.class);
     }
 
     public Integer updateEmployee(Integer id, EmployeeEntity employee) {
@@ -65,30 +71,41 @@ public class EmployeeRepository {
     }
 
     public void deleteEmployee(List<Integer> ids) {
-        dslContext.deleteFrom(EMPLOYEE).where(EMPLOYEE.ID.in(ids)).execute();
+        dslContext.deleteFrom(EMPLOYEE)
+                .where(EMPLOYEE.ID.in(ids))
+                .execute();
     }
 
     public List<Integer> getAllSupervisorsByIds(List<Integer> ids) {
-        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID).from(EMPLOYEE).where(EMPLOYEE.ID.in(ids)).fetch().into(Integer.TYPE);
+        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID)
+                .from(EMPLOYEE)
+                .where(EMPLOYEE.ID.in(ids))
+                .fetch()
+                .into(Integer.TYPE);
     }
 
     public List<Integer> getAllSupervisors() {
-        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID).from(EMPLOYEE).fetch().into(Integer.TYPE);
+        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID)
+                .from(EMPLOYEE)
+                .fetch()
+                .into(Integer.TYPE);
     }
 
     public Collection<Integer> getEmployeesWithSubordinatesByIds(List<Integer> ids) {
-        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID).from(EMPLOYEE).where(EMPLOYEE.SUPERVISOR_ID.in(ids)).fetch().into(Integer.TYPE);
+        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID)
+                .from(EMPLOYEE)
+                .where(EMPLOYEE.SUPERVISOR_ID.in(ids))
+                .fetch()
+                .into(Integer.TYPE);
     }
 
-    /*Запилить POJO и через него возвращать*/
     public List<EmployeeSupervisorEntity> getEmployeeSupervisor() {
-        //Employee empl = EMPLOYEE.as("empl");
-        return dslContext.select(EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Supv").SURNAME)
+        return dslContext.select(EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
                 .from(EMPLOYEE.as("Empl"))
                 .join(ORGANIZATION)
                 .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
                 .leftJoin(EMPLOYEE.as("Supv"))
-                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.equal(EMPLOYEE.as("Supv").ID))
+                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
                 .fetch()
                 .into(EmployeeSupervisorEntity.class);
     }

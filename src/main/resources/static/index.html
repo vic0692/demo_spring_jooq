@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+<head>
+    <meta charset="UTF-8">
+    <title>TitlePage</title>
+</head>
+<body>
+    <div ng-controller="organizationController">
+        <!--input type="text" ng-model="organization"-->
+        {{organization}}
+        <!--input type="text" ng-model="factory.hello"-->
+        {{getOrganization()}}
+        <button ng-click="setOrganization('Foo')">Foo</button>
+        {{factory.organization()}}
+    </div>
+
+    <div ng-controller="employeeController">
+        <!--input type="text" ng-model="employee"-->
+        {{employee}}
+        <!--input type="text" ng-model="factory.hello"-->
+    </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
