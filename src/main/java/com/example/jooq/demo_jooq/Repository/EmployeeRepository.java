@@ -106,6 +106,7 @@ public class EmployeeRepository {
                 .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
                 .leftJoin(EMPLOYEE.as("Supv"))
                 .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
+                .orderBy(EMPLOYEE.as("Empl").SURNAME)
                 .fetch()
                 .into(EmployeeSupervisorEntity.class);
     }

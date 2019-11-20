@@ -64,8 +64,7 @@ public class OrganizationRepository {
                .execute();
     }
 
-    public List<Integer> getAllParentOrganizationsByIds(List<Integer> ids)
-    {
+    public List<Integer> getAllParentOrganizationsByIds(List<Integer> ids) {
         return dslContext.selectDistinct(ORGANIZATION.PARENT_ORGANIZATION)
                 .from(ORGANIZATION)
                 .where(ORGANIZATION.ID.in(ids))
@@ -73,8 +72,7 @@ public class OrganizationRepository {
                 .into(Integer.TYPE);
     }
 
-    public List<Integer> getAllParentOrganizations()
-    {
+    public List<Integer> getAllParentOrganizations() {
         return dslContext.selectDistinct(ORGANIZATION.PARENT_ORGANIZATION)
                 .from(ORGANIZATION)
                 .fetch()
