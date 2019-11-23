@@ -15,4 +15,8 @@ public class EmployeeSupervisorEntity {
     private String patronymic;
     private String organizationName;
     private String supervisorName;
+
+    private Integer id;
+    private Integer organizationId;
+    private Integer supervisorId;
 }

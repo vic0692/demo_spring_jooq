@@ -1,6 +1,7 @@
 package com.example.jooq.demo_jooq.Controllers;
 
 import com.example.jooq.demo_jooq.Entities.EmployeeCountEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
 import com.example.jooq.demo_jooq.Entities.OrganizationEntity;
 import com.example.jooq.demo_jooq.Services.OrganizationService;
 import lombok.AllArgsConstructor;
@@ -47,6 +48,17 @@ public class OrganizationController {
     @GetMapping(path = "/listCount")
     public List<EmployeeCountEntity> getEmployeeCount() {
         return service.getEmployeeCount();
+    }
+
+    @GetMapping(path = "{id}/organizationSupervisor")
+    public EmployeeEntity getSupervisorByOrganization(@PathVariable Integer id)
+    {
+        return service.getSupervisorByOrganization(id);
+    }
+
+    @GetMapping(path = "{id}/parentOrganization")
+    public OrganizationEntity getParentOrganization(@PathVariable Integer id) {
+        return service.getParentOrganization(id);
     }
 
 }

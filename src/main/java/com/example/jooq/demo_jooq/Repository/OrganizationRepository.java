@@ -1,6 +1,7 @@
 package com.example.jooq.demo_jooq.Repository;
 
 import com.example.jooq.demo_jooq.Entities.EmployeeCountEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
 import com.example.jooq.demo_jooq.Entities.OrganizationEntity;
 import com.example.jooq.demo_jooq.introduction.db.tables.daos.OrganizationDao;
 import com.example.jooq.demo_jooq.introduction.db.tables.pojos.Organization;
@@ -95,5 +96,28 @@ public class OrganizationRepository {
                 .groupBy(ORGANIZATION.ORGANIZATION_NAME)
                 .fetch()
                 .into(EmployeeCountEntity.class);
+    }
+
+    public EmployeeEntity getSupervisorByOrganization(Integer id) {
+        return dslContext.select(EMPLOYEE.fields())
+                .from(EMPLOYEE)
+                .fullJoin(ORGANIZATION)
+                .on(EMPLOYEE.ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .where(ORGANIZATION.ID.equal(id))
+                .and(EMPLOYEE.SUPERVISOR_ID.isNull())
+                .fetchOne()
+                .into(EmployeeEntity.class);
+    }
+
+    public OrganizationEntity getParentOrganization(Integer id) {
+        return dslContext.select(ORGANIZATION.fields())
+                .from(ORGANIZATION)
+                .where(ORGANIZATION.ID.equal(
+                        dslContext.select(ORGANIZATION.PARENT_ORGANIZATION)
+                                .from(ORGANIZATION)
+                                .where(ORGANIZATION.ID.equal(id))
+                ))
+                .fetchOne()
+                .into(OrganizationEntity.class);
     }
 }

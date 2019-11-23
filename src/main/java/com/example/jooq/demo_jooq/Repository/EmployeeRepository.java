@@ -100,14 +100,24 @@ public class EmployeeRepository {
     }
 
     public List<EmployeeSupervisorEntity> getEmployeeSupervisor() {
-        return dslContext.select(EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
                 .from(EMPLOYEE.as("Empl"))
                 .join(ORGANIZATION)
                 .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
                 .leftJoin(EMPLOYEE.as("Supv"))
                 .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
-                .orderBy(EMPLOYEE.as("Empl").SURNAME)
+                .orderBy(EMPLOYEE.as("Empl").ID)
                 .fetch()
                 .into(EmployeeSupervisorEntity.class);
     }
+
+    /* Передаем супервизор ид для получения этого супервизора*/
+    public EmployeeEntity getEmployeeSupervisorById(Integer id) {
+        return dslContext.select(EMPLOYEE.fields())
+                .from(EMPLOYEE)
+                .where(EMPLOYEE.ID.equal(id))
+                .fetchOne()
+                .into(EmployeeEntity.class);
+    }
+
 }
