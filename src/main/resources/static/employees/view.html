@@ -1,0 +1,24 @@
+<h1>Edit employee</h1>
+<div ng-controller="employeeController">
+    <div style="display:flex; flex-direction: row; flex-wrap: nowrap" >
+        <div style="float:left">
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Surname: </label><input type="text" ng-model="employee.surname" disabled="disabled">
+            </div>
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Name: </label><input type="text" ng-model="employee.name" disabled="disabled">
+            </div>
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Patronymic: </label><input type="text" ng-model="employee.patronymic" disabled="disabled">
+            </div>
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Organization: </label><input type="number" ng-model="employee.organizationId" disabled="disabled">
+            </div>
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Supervisor: </label><input type="number" ng-model="employee.supervisorId" disabled="disabled">
+            </div>
+        </div>
+        <input type="button" value="Submit" ng-click="editEmployee(employee)">
+        <input type="button" value="Reset" ng-click="clearInputs()">
+    </div>
+</div>

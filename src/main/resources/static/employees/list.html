@@ -1,0 +1,24 @@
+<div ng-init="getEmployees()">
+    <div>
+        <a href="#/employees/new">Add new employee</a>
+    </div>
+
+    <div>
+        <table style="width:860px; border:1px solid black; border-collapse:collapse" >
+            <tr>
+                <th>Surname</th>
+                <th>Name</th>
+                <th>Patronymic</th>
+                <th>Organization</th>
+                <th>Supervisor</th>
+            </tr>
+            <tr ng-repeat="employee in employees" style="border: 1px solid black">
+                <td ng-model="employee.surname"><a href="#/employees/{{employee.id}}/edit">{{employee.surname}}</a></td>
+                <td>{{employee.name}}</td>
+                <td>{{employee.patronymic}}</td>
+                <td>{{employee.organizationName}}</td>
+                <td>{{employee.supervisorName}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
