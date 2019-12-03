@@ -65,6 +65,9 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
     };
 
     $scope.addEmployee = function (employee) {
+        var supSelect = document.getElementsByName('supervisorSelect')[0];
+        var supervisorId = supSelect.options[supSelect.selectedIndex].value;
+        $scope.employee.supervisorId = supervisorId;
         $http.post('http://localhost:8080/employee/new', employee)
             .then(function (result) {
                 console.log('succes create employee', employee);
