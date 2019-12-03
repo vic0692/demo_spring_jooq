@@ -14,21 +14,22 @@
             <!--<div style="clear:both; text-align:right">
                 <label style="float:left">Organization: </label><input type="number" ng-model="employee.organizationId">
             </div>-->
-            <div style="clear:both; text-align:right">
+            <!--<div style="clear:both; text-align:right">
                 <label style="float:left">Supervisor: </label><input type="number" ng-model="employee.supervisorId">
-            </div>
+            </div>-->
             <div style="clear:both; text-align:right">
                 <label style="float:left">Organization: </label>
-                <select ng-model="employee.organizationId" ng-options="organization.organizationName for organization in organizations track by organization.id" onchange="getOrganizationId(employee.organizationId)">
-                <option value="">Choose organization</option>
-            </select>
-            </div>
-            <!--<div style="clear:both; text-align:right">
-                <label style="float:left">Supervisor: </label>
-                <select>
-
+                <select ng-model="employee.organizationId" name="orgSel" ng-change="getOrganizationId(employee.organizationId)">
+                    <option value="">Choose organization</option>
+                    <option ng-repeat="organization in organizations" value="{{organization.id}}">{{organization.organizationName}}</option>
                 </select>
-            </div>-->
+            </div>
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Supervisor: </label>
+                <select ng-model="employee.supervisorId" name="supervisorSelect" disabled="disabled" ng-change="setSupervisorId(employee.supervisorId)">
+                    <option value="">Choose supervisor</option>
+                </select>
+            </div>
         </div>
         <input type="button" value="Submit" ng-click="addEmployee(employee)">
     </div>

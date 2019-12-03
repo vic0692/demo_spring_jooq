@@ -31,31 +31,31 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             .then(function (result) {
                 $scope.employee = null;
                 $scope.employeeId = null;
-                console.log('success', result);
+                console.log('success get employee list', result);
                 $scope.employees = result.data;
                 console.log('success params', $scope.params);
             })
             .catch(function (result) {
-                console.log('error');
+                console.log('error get employee list');
             });
     };
 
     $scope.getEmployee = function (employee) {
         $http.get('http://localhost:8080/employee/' + employee.id)
             .then(function (result) {
-                console.log('succes get employee', result.data);
+                console.log('success get employee', result.data);
                 $scope.employee = result.data;
                 $scope.employeeId = result.data.id;
             })
             .catch(function (result) {
-                console.log('fail get employee');
+                console.log('error get employee');
             })
     };
 
     $scope.getEmployeeById = function (employeeId) {
         $http.get('http://localhost:8080/employee/' + $scope.params.id)
             .then(function (result) {
-                console.log('succes get employee', result.data);
+                console.log('success get employee by id', result.data);
                 $scope.employee = result.data;
                 $scope.employeeId = result.data.id;
             })
@@ -65,33 +65,32 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
     };
 
     $scope.addEmployee = function (employee) {
-        employee.organizationId = $scope.employee.organizationId.id;
         $http.post('http://localhost:8080/employee/new', employee)
             .then(function (result) {
-                console.log('succes post', employee);
+                console.log('succes create employee', employee);
                 $scope.employee=null;
                 location.href='#/employees/list';
             })
             .catch(function (result) {
-                console.log('error post');
+                console.log('error create employee');
             });
     };
 
     $scope.editEmployee = function (employee) {
         $http.put('http://localhost:8080/employee/update/'+employee.id, employee)
             .then(function (result) {
-                console.log('succes update', employee);
+                console.log('succes update employee', employee);
                 location.href='#/employees/list';
             })
             .catch(function (result) {
-                console.log('error put', employee);
+                console.log('error update employee', employee);
             });
     };
 
     $scope.clearInputs = function () {
         $scope.employee = null;
         $scope.employeeId = null;
-        console.log('cleared', $scope.employee);
+        console.log('inputs cleared', $scope.employee);
     };
 
     $scope.showLocation = function() {
@@ -104,7 +103,7 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             .then(function (result) {
                 console.log('success get organizations');
                 $scope.organizations = result.data;
-                console.log('success get organizations', result.data);
+                console.log('success get organizations', $scope.organizations);
             })
             .catch(function (result) {
                 console.log('error get organizations');
@@ -112,6 +111,43 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
     };
 
     $scope.getOrganizationId = function(id) {
-        console.log('id: ', id);
+        if (id > 0) {
+            $http.get('http://localhost:8080/organization/'+id+'/organizationSupervisor')
+                .then(function (result) {
+                    $scope.supervisors = result.data;
+                    console.log('success get supervisor by organization', result.data);
+                    var supervisorSel = document.getElementsByName('supervisorSelect')[0];
+                    //console.log(supervisorSel);
+                    for (var i = 1; i < supervisorSel.length; i++) {
+                        supervisorSel.remove(i);
+                    }
+                    if ($scope.supervisors.length) {
+                        for (var i = 0; i < $scope.supervisors.length; i++) {
+                            var opt = document.createElement('option');
+                            opt.value = $scope.supervisors[i].id;
+                            opt.innerHTML = $scope.supervisors[i].surname;
+                            supervisorSel.appendChild(opt);
+                        }
+                    }
+                    else {
+                        var opt = document.createElement('option');
+                        opt.value = $scope.supervisors.id;
+                        opt.innerHTML = $scope.supervisors.surname;
+                        supervisorSel.appendChild(opt);
+                    }
+
+                    supervisorSel.disabled = false;
+                    console.log(document.getElementsByName('orgSel')[0]);
+                    console.log(supervisorSel);
+                })
+                .catch(function (result) {
+                    console.log('error get supervisor by organization');
+                });
+        }
+    };
+
+    $scope.setSupervisorId = function (id) {
+        //$scope.employee.id = id;
+        console.log(id);
     };
 });
