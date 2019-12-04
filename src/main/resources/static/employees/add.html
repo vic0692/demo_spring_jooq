@@ -11,12 +11,6 @@
             <div style="clear:both; text-align:right">
                 <label style="float:left">Patronymic: </label><input type="text" ng-model="employee.patronymic">
             </div>
-            <!--<div style="clear:both; text-align:right">
-                <label style="float:left">Organization: </label><input type="number" ng-model="employee.organizationId">
-            </div>-->
-            <!--<div style="clear:both; text-align:right">
-                <label style="float:left">Supervisor: </label><input type="number" ng-model="employee.supervisorId">
-            </div>-->
             <div style="clear:both; text-align:right">
                 <label style="float:left">Organization: </label>
                 <select ng-model="employee.organizationId" name="orgSel" ng-change="getOrganizationId(employee.organizationId)">
@@ -26,7 +20,7 @@
             </div>
             <div style="clear:both; text-align:right">
                 <label style="float:left">Supervisor: </label>
-                <select ng-model="employee.supervisorId" name="supervisorSelect" disabled="disabled" ng-change="setSupervisorId(employee.supervisorId)">
+                <select ng-model="employee.supervisorId" name="supervisorSelect" disabled="disabled">
                     <option value="">Choose supervisor</option>
                 </select>
             </div>

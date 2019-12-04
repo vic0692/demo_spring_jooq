@@ -40,18 +40,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             });
     };
 
-    $scope.getEmployee = function (employee) {
-        $http.get('http://localhost:8080/employee/' + employee.id)
-            .then(function (result) {
-                console.log('success get employee', result.data);
-                $scope.employee = result.data;
-                $scope.employeeId = result.data.id;
-            })
-            .catch(function (result) {
-                console.log('error get employee');
-            })
-    };
-
     $scope.getEmployeeById = function (employeeId) {
         $http.get('http://localhost:8080/employee/' + $scope.params.id)
             .then(function (result) {
@@ -94,11 +82,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
         $scope.employee = null;
         $scope.employeeId = null;
         console.log('inputs cleared', $scope.employee);
-    };
-
-    $scope.showLocation = function() {
-        console.log(location);
-        console.log($scope);
     };
 
     $scope.getOrganizations = function() {
@@ -147,10 +130,5 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
                     console.log('error get supervisor by organization');
                 });
         }
-    };
-
-    $scope.setSupervisorId = function (id) {
-        //$scope.employee.id = id;
-        console.log(id);
     };
 });
