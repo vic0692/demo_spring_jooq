@@ -1,6 +1,6 @@
 <h1>Edit employee</h1>
-<div ng-init="getEmployeeById()">
-    <div style="display:flex; flex-direction: row; flex-wrap: nowrap" >
+<div ng-init="employeeEditInit()">
+    <div style="display:flex; flex-direction: row; flex-wrap: nowrap">
         <div style="float:left">
             <div style="clear:both; text-align:right">
                 <label style="float:left">Surname: </label><input type="text" ng-model="employee.surname">
@@ -11,15 +11,29 @@
             <div style="clear:both; text-align:right">
                 <label style="float:left">Patronymic: </label><input type="text" ng-model="employee.patronymic">
             </div>
-            <div style="clear:both; text-align:right">
+            <div style="clear:both; text-align:right" hidden="hidden">
                 <label style="float:left">Organization: </label><input type="number" ng-model="employee.organizationId">
             </div>
-            <div style="clear:both; text-align:right">
+            <div style="clear:both; text-align:right" hidden="hidden">
                 <label style="float:left">Supervisor: </label><input type="number" ng-model="employee.supervisorId">
             </div>
+
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Organization: </label>
+                <select ng-model="organizationId" name="organizationSelect" ng-change="getOrganizationId()">
+                    <option value="">Choose organization</option>
+                    <option ng-repeat="organization in organizations" value="{{organization.id}}">{{organization.organizationName}}</option>
+                </select>
+            </div>
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Supervisor: </label>
+                <select ng-model="supervisorId" name="supervisorSelect" disabled="disabled">
+                    <option value="">Choose supervisor</option>
+                </select>
+            </div>
+
         </div>
         <input type="button" value="Submit" ng-click="editEmployee(employee)">
-        <!--<input type="button" value="Reset" ng-click="clearInputs()">-->
     </div>
 
     <a href="#/employees/list" ng-click="clearInputs()">Back to list</a>

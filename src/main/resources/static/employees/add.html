@@ -13,7 +13,7 @@
             </div>
             <div style="clear:both; text-align:right">
                 <label style="float:left">Organization: </label>
-                <select ng-model="employee.organizationId" name="orgSel" ng-change="getOrganizationId(employee.organizationId)">
+                <select ng-model="employee.organizationId" name="organizationSelect" ng-change="getOrganizationId()">
                     <option value="">Choose organization</option>
                     <option ng-repeat="organization in organizations" value="{{organization.id}}">{{organization.organizationName}}</option>
                 </select>

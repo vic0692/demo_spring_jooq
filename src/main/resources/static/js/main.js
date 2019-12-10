@@ -30,7 +30,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
         $http.get('http://localhost:8080/employee/listSup') //получил список объектов
             .then(function (result) {
                 $scope.employee = null;
-                $scope.employeeId = null;
                 console.log('success get employee list', result);
                 $scope.employees = result.data;
                 console.log('success params', $scope.params);
@@ -40,12 +39,15 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             });
     };
 
-    $scope.getEmployeeById = function (employeeId) {
+    $scope.getEmployeeById = function () {
+        var va;
         $http.get('http://localhost:8080/employee/' + $scope.params.id)
             .then(function (result) {
                 console.log('success get employee by id', result.data);
                 $scope.employee = result.data;
-                $scope.employeeId = result.data.id;
+
+                va = $scope.setOrganizationsOnForm(result.data.organizationId);
+                console.log(va);
             })
             .catch(function (result) {
                 console.log('fail get employee by id', employeeId);
@@ -53,8 +55,8 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
     };
 
     $scope.addEmployee = function (employee) {
-        var supSelect = document.getElementsByName('supervisorSelect')[0];
-        var supervisorId = supSelect.options[supSelect.selectedIndex].value;
+        var supervisorSelect = document.getElementsByName('supervisorSelect')[0];
+        var supervisorId = supervisorSelect.options[supervisorSelect.selectedIndex].value;
         $scope.employee.supervisorId = supervisorId;
         $http.post('http://localhost:8080/employee/new', employee)
             .then(function (result) {
@@ -87,7 +89,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
     $scope.getOrganizations = function() {
         $http.get('http://localhost:8080/organization/list')
             .then(function (result) {
-                console.log('success get organizations');
                 $scope.organizations = result.data;
                 console.log('success get organizations', $scope.organizations);
             })
@@ -97,38 +98,58 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
     };
 
     $scope.getOrganizationId = function(id) {
-        if (id > 0) {
-            $http.get('http://localhost:8080/organization/'+id+'/organizationSupervisor')
+        var sel = document.getElementsByName("organizationSelect")[0];
+        var idx = sel.selectedIndex;
+        var ids = sel.options[idx].value;
+        if (ids > 0) {
+            $http.get('http://localhost:8080/organization/'+ids+'/organizationSupervisor')
                 .then(function (result) {
                     $scope.supervisors = result.data;
                     console.log('success get supervisor by organization', result.data);
-                    var supervisorSel = document.getElementsByName('supervisorSelect')[0];
+                    var supervisorSelect = document.getElementsByName('supervisorSelect')[0];
                     //console.log(supervisorSel);
-                    for (var i = 1; i < supervisorSel.length; i++) {
-                        supervisorSel.remove(i);
+                    for (var i = 1; i < supervisorSelect.length; i++) {
+                        supervisorSelect.remove(i);
                     }
                     if ($scope.supervisors.length) {
                         for (var i = 0; i < $scope.supervisors.length; i++) {
                             var opt = document.createElement('option');
                             opt.value = $scope.supervisors[i].id;
                             opt.innerHTML = $scope.supervisors[i].surname;
-                            supervisorSel.appendChild(opt);
+                            supervisorSelect.appendChild(opt);
                         }
                     }
                     else {
                         var opt = document.createElement('option');
                         opt.value = $scope.supervisors.id;
                         opt.innerHTML = $scope.supervisors.surname;
-                        supervisorSel.appendChild(opt);
+                        supervisorSelect.appendChild(opt);
                     }
 
-                    supervisorSel.disabled = false;
-                    console.log(document.getElementsByName('orgSel')[0]);
-                    console.log(supervisorSel);
+                    supervisorSelect.disabled = false;
                 })
                 .catch(function (result) {
                     console.log('error get supervisor by organization');
                 });
         }
+    };
+
+    $scope.setOrganizationsOnForm = function (id) {
+        var organizationSelect = document.getElementsByName('organizationSelect')[0];
+        var len = organizationSelect.options.length;
+        for (var i = 0; i < len; i++) {
+            if (parseInt(organizationSelect.options[i].value) === parseInt(id)) {
+                console.log(organizationSelect.options[i].value, id);
+                organizationSelect.options[i].selected = true;
+                organizationSelect.selectedIndex = i;
+                console.log(organizationSelect);
+                return true;
+            }
+        }
+    };
+
+    $scope.employeeEditInit = function () {
+        $scope.getOrganizations();
+        $scope.getEmployeeById();
     };
 });
