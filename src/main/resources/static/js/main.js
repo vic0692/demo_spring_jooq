@@ -57,8 +57,15 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
     };
 
     $scope.addEmployee = function (employee) {
+        var supervisorId;
         var supervisorSelect = document.getElementsByName('supervisorSelect')[0];
-        var supervisorId = supervisorSelect.options[supervisorSelect.selectedIndex].value;
+        /*var supervisorId = supervisorSelect.options[supervisorSelect.selectedIndex].value;
+        if (supervisorId === 'Choose supervisor') {
+            supervisorId = null;
+        }*/
+        if (supervisorSelect.options[supervisorSelect.selectedIndex].value !== 'Choose supervisor') {
+            supervisorId = supervisorSelect.options[supervisorSelect.selectedIndex].value;
+        }
         $scope.employee.supervisorId = supervisorId;
         $http.post('http://localhost:8080/employee/new', employee)
             .then(function (result) {
@@ -72,6 +79,13 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
     };
 
     $scope.editEmployee = function (employee) {
+        /*ДОДЕЛАТЬ НА ЕСЛИ НЕ ВЫБРАТЬ СУПЕРВИЗОР*/
+        var organizationSelect = document.getElementsByName('organizationSelect')[0];
+        var organizationId = organizationSelect.options[organizationSelect.selectedIndex].value;
+        $scope.employee.organizationId = organizationId;
+        var supervisorSelect = document.getElementsByName('supervisorSelect')[0];
+        var supervisorId = supervisorSelect.options[supervisorSelect.selectedIndex].value;
+        $scope.employee.supervisorId = supervisorId;
         $http.put('http://localhost:8080/employee/update/'+employee.id, employee)
             .then(function (result) {
                 console.log('succes update employee', employee);
@@ -99,6 +113,7 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             });
     };
 
+    /*ДОПИЛ НА ЕСЛИ НЕТ ЕЩЕ СУПЕРВИЗОРОВ*/
     $scope.getOrganizationId = function() {
         var sel = document.getElementsByName("organizationSelect")[0];
         var idx = sel.selectedIndex;
