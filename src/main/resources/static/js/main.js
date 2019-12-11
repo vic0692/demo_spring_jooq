@@ -48,6 +48,8 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
 
                 va = $scope.setOrganizationsOnForm(result.data.organizationId);
                 console.log(va);
+                va = $scope.setSupervisorOnForm(result.data.organizationId, result.data.supervisorId, result.data.id);
+                console.log(va);
             })
             .catch(function (result) {
                 console.log('fail get employee by id', employeeId);
@@ -97,7 +99,7 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             });
     };
 
-    $scope.getOrganizationId = function(id) {
+    $scope.getOrganizationId = function() {
         var sel = document.getElementsByName("organizationSelect")[0];
         var idx = sel.selectedIndex;
         var ids = sel.options[idx].value;
@@ -107,20 +109,24 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
                     $scope.supervisors = result.data;
                     console.log('success get supervisor by organization', result.data);
                     var supervisorSelect = document.getElementsByName('supervisorSelect')[0];
-                    //console.log(supervisorSel);
-                    for (var i = 1; i < supervisorSelect.length; i++) {
+                    var len = supervisorSelect.length;
+                    for (var i = len-1; i >= 0; i--) {
                         supervisorSelect.remove(i);
                     }
+                    /*вынести*/
+                    var opt = document.createElement('option');
+                    opt.innerHTML = 'Choose supervisor';
+                    supervisorSelect.appendChild(opt);
                     if ($scope.supervisors.length) {
                         for (var i = 0; i < $scope.supervisors.length; i++) {
-                            var opt = document.createElement('option');
+                            opt = document.createElement('option');
                             opt.value = $scope.supervisors[i].id;
                             opt.innerHTML = $scope.supervisors[i].surname;
                             supervisorSelect.appendChild(opt);
                         }
                     }
                     else {
-                        var opt = document.createElement('option');
+                        opt = document.createElement('option');
                         opt.value = $scope.supervisors.id;
                         opt.innerHTML = $scope.supervisors.surname;
                         supervisorSelect.appendChild(opt);
@@ -146,6 +152,44 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
                 return true;
             }
         }
+    };
+
+    $scope.setSupervisorOnForm = function (organizationId, supervisorId, employeeId) {
+        var supervisorSelect = document.getElementsByName('supervisorSelect')[0];
+        supervisorSelect.remove(0);
+        $http.get('http://localhost:8080/organization/'+organizationId+'/organizationSupervisor')
+            .then(function (result) {
+                $scope.supervisors = result.data;
+                console.log('get org on edit and selected');
+                /*вынести*/
+                var opt = document.createElement('option');
+                opt.innerHTML = 'Choose supervisor';
+                supervisorSelect.appendChild(opt);
+                if ($scope.supervisors.length) {
+                    for (var i = 0; i < $scope.supervisors.length; i++) {
+                        var opt = document.createElement('option');
+                        opt.value = $scope.supervisors[i].id;
+                        opt.innerHTML = $scope.supervisors[i].surname;
+                        supervisorSelect.appendChild(opt);
+                    }
+                }
+                else {
+                    var opt = document.createElement('option');
+                    opt.value = $scope.supervisors.id;
+                    opt.innerHTML = $scope.supervisors.surname;
+                    supervisorSelect.appendChild(opt);
+                }
+
+                for (var i = 0; i < supervisorSelect.length; i++) {
+                    if (parseInt(supervisorSelect.options[i].value) === parseInt(supervisorId)) {
+                        supervisorSelect.disabled = false;
+                        supervisorSelect.options[i].selected = true;
+                        supervisorSelect.selectedIndex = i;
+                        return true;
+                    }
+                }
+
+            })
     };
 
     $scope.employeeEditInit = function () {
