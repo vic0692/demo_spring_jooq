@@ -126,18 +126,27 @@ public class EmployeeRepository {
 
     /*Дерево с путем и отображением*/
     public List<EmployeeRecursiveEntity> getEmployeeTree() {
-        Field<Integer[]> path = array(EMPLOYEE.ID).as("path");
+        Field<Integer[]> path = array(EMPLOYEE.as("Empl").ID).as("path");
         Field<Integer> level = inline(1).as("level");
-        Field<String> display = inline("- ").concat(EMPLOYEE.SURNAME).as("display");
+        Field<String> display = inline("- ").concat(EMPLOYEE.as("Empl").SURNAME).as("display");
 
         return dslContext.withRecursive("r").as(
-                select(EMPLOYEE.ID, EMPLOYEE.SURNAME, EMPLOYEE.NAME, EMPLOYEE.PATRONYMIC, EMPLOYEE.ORGANIZATION_ID, EMPLOYEE.SUPERVISOR_ID, path, level, display)
-                        .from(EMPLOYEE)
-                        .where(EMPLOYEE.SUPERVISOR_ID.isNull())
+                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, EMPLOYEE.as("Empl").SUPERVISOR_ID, ORGANIZATION.ORGANIZATION_NAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"), path, level, display)
+                        .from(EMPLOYEE.as("Empl"))
+                        .fullJoin(ORGANIZATION)
+                        .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.eq(ORGANIZATION.ID))
+                        .leftJoin(EMPLOYEE.as("supv"))
+                        .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("supv").ID))
+                        .where(EMPLOYEE.as("Empl").SUPERVISOR_ID.isNull())
                         .unionAll(
-                                select(EMPLOYEE.ID, EMPLOYEE.SURNAME, EMPLOYEE.NAME, EMPLOYEE.PATRONYMIC, EMPLOYEE.ORGANIZATION_ID, EMPLOYEE.SUPERVISOR_ID, PostgresDSL.arrayAppend(path, EMPLOYEE.ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(EMPLOYEE.ID))
-                                        .from(EMPLOYEE)
-                                        .join(table(name("r"))).on(field(name("r", "id"), Integer.class).eq(EMPLOYEE.SUPERVISOR_ID)))
+                                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, EMPLOYEE.as("Empl").SUPERVISOR_ID, ORGANIZATION.ORGANIZATION_NAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"), PostgresDSL.arrayAppend(path, EMPLOYEE.as("Empl").ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(EMPLOYEE.as("Empl").ID))
+                                        .from(EMPLOYEE.as("Empl"))
+                                        .fullJoin(ORGANIZATION)
+                                        .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.eq(ORGANIZATION.ID))
+                                        .leftJoin(EMPLOYEE.as("supv"))
+                                        .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.equal(EMPLOYEE.as("supv").ID))
+                                        .join(table(name("r")))
+                                        .on(field(name("r", "id"), Integer.class).eq(EMPLOYEE.as("Empl").SUPERVISOR_ID)))
 
         )
                 .select()
@@ -147,8 +156,9 @@ public class EmployeeRepository {
                 .into(EmployeeRecursiveEntity.class);
     }
 
+
     /* ПРОБУЕМ ИЕРАРХИЮ */
-    public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
+    /*public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
         com.example.jooq.demo_jooq.introduction.db.tables.Employee T1 = EMPLOYEE.as("T1");
         com.example.jooq.demo_jooq.introduction.db.tables.Employee T2 = EMPLOYEE.as("T2");
 
@@ -182,5 +192,5 @@ public class EmployeeRepository {
         });
 
         return resultList;
-    }
+    }*/
 }

@@ -57,8 +57,8 @@ public class EmployeeService {
         return repository.getEmployeeTree();
     }
 
-    public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
+    /*public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
         return repository.getEmployeeTree1();
-    }
+    }*/
 
 }

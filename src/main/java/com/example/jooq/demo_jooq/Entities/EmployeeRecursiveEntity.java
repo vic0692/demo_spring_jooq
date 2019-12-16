@@ -20,4 +20,6 @@ public class EmployeeRecursiveEntity {
     private Integer[] path;
     private String display;
     private Integer level;
+    private String organizationName;
+    private String supervisorName;
 }

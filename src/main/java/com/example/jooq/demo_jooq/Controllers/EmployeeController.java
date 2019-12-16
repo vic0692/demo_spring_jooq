@@ -60,8 +60,8 @@ public class EmployeeController {
         return service.getEmployeeTree();
     }
 
-    @GetMapping(path = "/tree")
+    /*@GetMapping(path = "/tree")
     public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
         return service.getEmployeeTree1();
-    }
+    }*/
 }
