@@ -1,21 +1,25 @@
 package com.example.jooq.demo_jooq.Repository;
 
 import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeRecursiveEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeRecursiveGroupedEntity;
 import com.example.jooq.demo_jooq.introduction.db.tables.daos.EmployeeDao;
 import com.example.jooq.demo_jooq.introduction.db.tables.pojos.Employee;
 import lombok.AllArgsConstructor;
-import org.jooq.DSLContext;
-import org.jooq.Record5;
+import org.jooq.*;
+import org.jooq.impl.DSL.*;
+import org.jooq.util.postgres.PostgresDSL;
 import org.springframework.stereotype.Repository;
 import com.example.jooq.demo_jooq.Entities.EmployeeSupervisorEntity;
+import org.thymeleaf.expression.Lists;
 
 import static com.example.jooq.demo_jooq.introduction.db.Sequences.EMPLOYEE_ID_SEQ1;
 import static com.example.jooq.demo_jooq.introduction.db.tables.Employee.EMPLOYEE;
 import static com.example.jooq.demo_jooq.introduction.db.tables.Organization.ORGANIZATION;
+import static org.jooq.impl.DSL.*;
+import static org.jooq.util.postgres.PostgresDSL.array;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Repository
 @AllArgsConstructor
@@ -120,4 +124,63 @@ public class EmployeeRepository {
                 .into(EmployeeEntity.class);
     }
 
+    /*Дерево с путем и отображением*/
+    public List<EmployeeRecursiveEntity> getEmployeeTree() {
+        Field<Integer[]> path = array(EMPLOYEE.ID).as("path");
+        Field<Integer> level = inline(1).as("level");
+        Field<String> display = inline("- ").concat(EMPLOYEE.SURNAME).as("display");
+
+        return dslContext.withRecursive("r").as(
+                select(EMPLOYEE.ID, EMPLOYEE.SURNAME, EMPLOYEE.NAME, EMPLOYEE.PATRONYMIC, EMPLOYEE.ORGANIZATION_ID, EMPLOYEE.SUPERVISOR_ID, path, level, display)
+                        .from(EMPLOYEE)
+                        .where(EMPLOYEE.SUPERVISOR_ID.isNull())
+                        .unionAll(
+                                select(EMPLOYEE.ID, EMPLOYEE.SURNAME, EMPLOYEE.NAME, EMPLOYEE.PATRONYMIC, EMPLOYEE.ORGANIZATION_ID, EMPLOYEE.SUPERVISOR_ID, PostgresDSL.arrayAppend(path, EMPLOYEE.ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(EMPLOYEE.ID))
+                                        .from(EMPLOYEE)
+                                        .join(table(name("r"))).on(field(name("r", "id"), Integer.class).eq(EMPLOYEE.SUPERVISOR_ID)))
+
+        )
+                .select()
+                .from(table(name("r")))
+                .orderBy(path)
+                .fetch()
+                .into(EmployeeRecursiveEntity.class);
+    }
+
+    /* ПРОБУЕМ ИЕРАРХИЮ */
+    public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
+        com.example.jooq.demo_jooq.introduction.db.tables.Employee T1 = EMPLOYEE.as("T1");
+        com.example.jooq.demo_jooq.introduction.db.tables.Employee T2 = EMPLOYEE.as("T2");
+
+        Map<Record, Result<Record>> recordResultMap = dslContext
+                .select()
+                .from(T1)
+                .join(T2)
+                .on(T1.ID.eq(T2.SUPERVISOR_ID))
+                .where(T1.SUPERVISOR_ID.isNull())
+                .fetch()
+                .intoGroups(T1.fields());
+
+        List<EmployeeRecursiveGroupedEntity> resultList = new ArrayList<EmployeeRecursiveGroupedEntity>();
+
+        recordResultMap.forEach((record, result) -> {
+            EmployeeRecursiveGroupedEntity group = record.into(EmployeeRecursiveGroupedEntity.class);
+            List<EmployeeRecursiveGroupedEntity> children = new ArrayList<EmployeeRecursiveGroupedEntity>();
+
+            result.forEach(r -> {
+                if (Objects.nonNull(r.getValue(6))) {
+                    children.add(r.into(EmployeeRecursiveGroupedEntity.class));
+                }
+            });
+
+            for(EmployeeRecursiveGroupedEntity child : children) {
+                group.setChildren(child);
+            }
+            //group.setChildren(children);
+            resultList.add(group);
+
+        });
+
+        return resultList;
+    }
 }

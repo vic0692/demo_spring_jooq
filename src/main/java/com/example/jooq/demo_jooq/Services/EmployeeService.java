@@ -1,6 +1,8 @@
 package com.example.jooq.demo_jooq.Services;
 
 import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeRecursiveEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeRecursiveGroupedEntity;
 import com.example.jooq.demo_jooq.Entities.EmployeeSupervisorEntity;
 import com.example.jooq.demo_jooq.Repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
@@ -49,6 +51,14 @@ public class EmployeeService {
 
     public List<EmployeeSupervisorEntity> getEmployeeSupervisor() {
         return repository.getEmployeeSupervisor();
+    }
+
+    public List<EmployeeRecursiveEntity> getEmployeeTree() {
+        return repository.getEmployeeTree();
+    }
+
+    public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
+        return repository.getEmployeeTree1();
     }
 
 }

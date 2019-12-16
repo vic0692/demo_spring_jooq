@@ -1,23 +1,28 @@
 <div ng-init="getEmployees()">
     <div>
         <a href="#/employees/new">Add new employee</a>
+        <a href="" ng-click="deleteSelectedEmployees()">Delete employees</a>
     </div>
 
     <div>
-        <table style="width:860px; border:1px solid black; border-collapse:collapse" >
+        <table width="860px" cellpadding="5px" cellspacing="0" border="1px solid black" border-collapse="collapse">
             <tr>
+                <th><input type="checkbox" ng-model="isChecked" ng-change="selectAllEmployees()"></th>
                 <th>Surname</th>
                 <th>Name</th>
                 <th>Patronymic</th>
                 <th>Organization</th>
                 <th>Supervisor</th>
+                <th>Delete</th>
             </tr>
-            <tr ng-repeat="employee in employees" style="border: 1px solid black">
+            <tr ng-repeat="employee in employees">
+                <td><input type="checkbox" name="{{employee.surname}}" value="{{employee.id}}" ng-model="selectedEmployees[employee.id]" ng-checked="isChecked" ng-change="selectEmployee(employee.id)"></td>
                 <td ng-model="employee.surname"><a href="#/employees/{{employee.id}}/edit">{{employee.surname}}</a></td>
                 <td>{{employee.name}}</td>
                 <td>{{employee.patronymic}}</td>
                 <td>{{employee.organizationName}}</td>
                 <td>{{employee.supervisorName}}</td>
+                <td><a href="" ng-click="deleteEmployee(employee.id)">Delete</a></td>
             </tr>
         </table>
     </div>

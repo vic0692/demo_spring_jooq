@@ -1,6 +1,8 @@
 package com.example.jooq.demo_jooq.Controllers;
 
 import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeRecursiveEntity;
+import com.example.jooq.demo_jooq.Entities.EmployeeRecursiveGroupedEntity;
 import com.example.jooq.demo_jooq.Entities.EmployeeSupervisorEntity;
 import com.example.jooq.demo_jooq.Services.EmployeeService;
 
@@ -53,5 +55,13 @@ public class EmployeeController {
         return service.getEmployeeSupervisor();
     }
 
+    @GetMapping(path = "/getTree")
+    public List<EmployeeRecursiveEntity> getEmployeeTree() {
+        return service.getEmployeeTree();
+    }
 
+    @GetMapping(path = "/tree")
+    public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
+        return service.getEmployeeTree1();
+    }
 }

@@ -1,13 +1,13 @@
 package com.example.jooq.demo_jooq.Repository;
 
-import com.example.jooq.demo_jooq.Entities.EmployeeCountEntity;
-import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
-import com.example.jooq.demo_jooq.Entities.OrganizationEntity;
+import com.example.jooq.demo_jooq.Entities.*;
 import com.example.jooq.demo_jooq.introduction.db.tables.daos.OrganizationDao;
 import com.example.jooq.demo_jooq.introduction.db.tables.pojos.Organization;
 import lombok.AllArgsConstructor;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.impl.DSL;
+import org.jooq.util.postgres.PostgresDSL;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -16,6 +16,7 @@ import java.util.List;
 import static com.example.jooq.demo_jooq.introduction.db.Sequences.ORGANIZATION_ID_SEQ1;
 import static com.example.jooq.demo_jooq.introduction.db.tables.Organization.ORGANIZATION;
 import static com.example.jooq.demo_jooq.introduction.db.tables.Employee.EMPLOYEE;
+import static org.jooq.impl.DSL.*;
 
 @Repository
 @AllArgsConstructor
@@ -98,14 +99,14 @@ public class OrganizationRepository {
                 .into(EmployeeCountEntity.class);
     }
 
-    public EmployeeEntity getSupervisorByOrganization(Integer id) {
+    public List<EmployeeEntity> getSupervisorByOrganization(Integer id) {
         return dslContext.select(EMPLOYEE.fields())
                 .from(EMPLOYEE)
                 .fullJoin(ORGANIZATION)
                 .on(EMPLOYEE.ORGANIZATION_ID.equal(ORGANIZATION.ID))
                 .where(ORGANIZATION.ID.equal(id))
                 .and(EMPLOYEE.SUPERVISOR_ID.isNull())
-                .fetchOne()
+                .fetch()
                 .into(EmployeeEntity.class);
     }
 
@@ -119,5 +120,27 @@ public class OrganizationRepository {
                 ))
                 .fetchOne()
                 .into(OrganizationEntity.class);
+    }
+
+    public List<OrganizationRecursiveEntity> getOrganizationTree() {
+        Field<Integer[]> path = array(ORGANIZATION.ID).as("path");
+        Field<Integer> level = inline(1).as("level");
+        Field<String> display = inline("- ").concat(ORGANIZATION.ORGANIZATION_NAME).as("display");
+
+        return dslContext.withRecursive("r").as(
+                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATION_NAME, ORGANIZATION.PARENT_ORGANIZATION, path, level, display)
+                        .from(ORGANIZATION)
+                        .where(ORGANIZATION.PARENT_ORGANIZATION.isNull())
+                        .unionAll(
+                                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATION_NAME, ORGANIZATION.PARENT_ORGANIZATION, PostgresDSL.arrayAppend(path, ORGANIZATION.ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(ORGANIZATION.ID))
+                                        .from(ORGANIZATION)
+                                        .join(table(name("r"))).on(field(name("r", "id"), Integer.class).eq(ORGANIZATION.PARENT_ORGANIZATION)))
+
+        )
+                .select()
+                .from(table(name("r")))
+                .orderBy(path)
+                .fetch()
+                .into(OrganizationRecursiveEntity.class);
     }
 }

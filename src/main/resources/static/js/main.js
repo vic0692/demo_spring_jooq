@@ -25,6 +25,7 @@ app.config(function ($routeProvider, $locationProvider) {
 
 app.controller('employeeController', function ($http, $scope, $route, $routeParams) {
     $scope.params = $routeParams;
+    $scope.selectedEmployees = [];
 
     $scope.getEmployees = function () {
         $http.get('http://localhost:8080/employee/listSup') //получил список объектов
@@ -52,7 +53,7 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
                 console.log(va);
             })
             .catch(function (result) {
-                console.log('fail get employee by id', employeeId);
+                console.log('fail get employee by id', $scope.params.id);
             })
     };
 
@@ -101,7 +102,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
 
     $scope.clearInputs = function () {
         $scope.employee = null;
-        $scope.employeeId = null;
         console.log('inputs cleared', $scope.employee);
     };
 
@@ -135,22 +135,24 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
                     var opt = document.createElement('option');
                     opt.innerHTML = 'Choose supervisor';
                     supervisorSelect.appendChild(opt);
-                    if ($scope.supervisors.length) {
+                    if ($scope.supervisors.length > 0) {
                         for (var i = 0; i < $scope.supervisors.length; i++) {
-                            opt = document.createElement('option');
-                            opt.value = $scope.supervisors[i].id;
-                            opt.innerHTML = $scope.supervisors[i].surname;
-                            supervisorSelect.appendChild(opt);
+                            /*Добавил иф*/
+                            if ($scope.supervisors[i].id !== $scope.employee.id) {
+                                opt = document.createElement('option');
+                                opt.value = $scope.supervisors[i].id;
+                                opt.innerHTML = $scope.supervisors[i].surname;
+                                supervisorSelect.appendChild(opt);
+                            }
                         }
                     }
-                    else {
-                        opt = document.createElement('option');
-                        opt.value = $scope.supervisors.id;
-                        opt.innerHTML = $scope.supervisors.surname;
-                        supervisorSelect.appendChild(opt);
-                    }
 
-                    supervisorSelect.disabled = false;
+                    if (supervisorSelect.length > 1) {
+                        supervisorSelect.disabled = false;
+                    }
+                    else {
+                        supervisorSelect.disabled = true;
+                    }
                 })
                 .catch(function (result) {
                     console.log('error get supervisor by organization');
@@ -183,19 +185,20 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
                 var opt = document.createElement('option');
                 opt.innerHTML = 'Choose supervisor';
                 supervisorSelect.appendChild(opt);
-                if ($scope.supervisors.length) {
+                if ($scope.supervisors.length > 0) {
                     for (var i = 0; i < $scope.supervisors.length; i++) {
-                        var opt = document.createElement('option');
-                        opt.value = $scope.supervisors[i].id;
-                        opt.innerHTML = $scope.supervisors[i].surname;
-                        supervisorSelect.appendChild(opt);
+                        /*Добавил ИФ*/
+                        if ($scope.supervisors[i].id !== $scope.employee.id) {
+                            var opt = document.createElement('option');
+                            opt.value = $scope.supervisors[i].id;
+                            opt.innerHTML = $scope.supervisors[i].surname;
+                            supervisorSelect.appendChild(opt);
+                        }
                     }
                 }
-                else {
-                    var opt = document.createElement('option');
-                    opt.value = $scope.supervisors.id;
-                    opt.innerHTML = $scope.supervisors.surname;
-                    supervisorSelect.appendChild(opt);
+
+                if (supervisorSelect.length > 1) {
+                    supervisorSelect.disabled = false;
                 }
 
                 for (var i = 0; i < supervisorSelect.length; i++) {
@@ -214,4 +217,41 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
         $scope.getOrganizations();
         $scope.getEmployeeById();
     };
+
+    $scope.deleteEmployee = function (id) {
+        var list = [];
+        list.push(id);
+        $http.put('http://localhost:8080/employee/delete', list)
+            .then(function (result) {
+                console.log('success delete', id);
+                location.reload();
+            })
+    };
+
+    $scope.selectEmployee = function (id) {
+        /*if (check.checked == true)
+        {
+            $scope.selectedEmployees.push(id);
+        }
+        else
+        {
+            $scope.selectedEmployees.pop(id);
+        }
+        console.log($scope.selectedEmployees);*/
+        console.log($scope.selectedEmployees);
+
+    };
+
+    $scope.deleteSelectedEmployees = function () {
+        var list = [];
+        for (var i = 0; i < $scope.selectedEmployees.length; i++) {
+            console.log($scope.selectedEmployees[i]);
+            if ($scope.selectedEmployees[i] === true) {
+                list.push(i);
+            }
+        }
+        console.log(list);
+        $http.put('http://localhost:8080/employee/delete', list);
+        location.reload();
+    }
 });
