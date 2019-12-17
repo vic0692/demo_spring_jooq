@@ -156,41 +156,60 @@ public class EmployeeRepository {
                 .into(EmployeeRecursiveEntity.class);
     }
 
+    public List<EmployeeSupervisorEntity> getEmployeeTree1() {
+        Field<Integer[]> path = array(EMPLOYEE.as("Empl").ID).as("path");
+        Field<Integer> level = inline(1).as("level");
+        Field<String> display = inline("- ").concat(EMPLOYEE.as("Empl").SURNAME).as("display");
 
-    /* ПРОБУЕМ ИЕРАРХИЮ */
-    /*public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
-        com.example.jooq.demo_jooq.introduction.db.tables.Employee T1 = EMPLOYEE.as("T1");
-        com.example.jooq.demo_jooq.introduction.db.tables.Employee T2 = EMPLOYEE.as("T2");
+        return dslContext.withRecursive("r").as(
+                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, EMPLOYEE.as("Empl").SUPERVISOR_ID, ORGANIZATION.ORGANIZATION_NAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"))
+                        .from(EMPLOYEE.as("Empl"))
+                        .fullJoin(ORGANIZATION)
+                        .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.eq(ORGANIZATION.ID))
+                        .leftJoin(EMPLOYEE.as("supv"))
+                        .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("supv").ID))
+                        .where(EMPLOYEE.as("Empl").SUPERVISOR_ID.isNull())
+                        .unionAll(
+                                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, EMPLOYEE.as("Empl").SUPERVISOR_ID, ORGANIZATION.ORGANIZATION_NAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"))
+                                        .from(EMPLOYEE.as("Empl"))
+                                        .fullJoin(ORGANIZATION)
+                                        .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.eq(ORGANIZATION.ID))
+                                        .leftJoin(EMPLOYEE.as("supv"))
+                                        .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.equal(EMPLOYEE.as("supv").ID))
+                                        .join(table(name("r")))
+                                        .on(field(name("r", "id"), Integer.class).eq(EMPLOYEE.as("Empl").SUPERVISOR_ID)))
 
-        Map<Record, Result<Record>> recordResultMap = dslContext
+        )
                 .select()
-                .from(T1)
-                .join(T2)
-                .on(T1.ID.eq(T2.SUPERVISOR_ID))
-                .where(T1.SUPERVISOR_ID.isNull())
+                .from(table(name("r")))
+                //.orderBy(table(name("r")).field("supervisorName"))
                 .fetch()
-                .intoGroups(T1.fields());
+                .into(EmployeeSupervisorEntity.class);
+    }
 
-        List<EmployeeRecursiveGroupedEntity> resultList = new ArrayList<EmployeeRecursiveGroupedEntity>();
+    public List<EmployeeSupervisorEntity> getRoot() {
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+                .from(EMPLOYEE.as("Empl"))
+                .join(ORGANIZATION)
+                .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .leftJoin(EMPLOYEE.as("Supv"))
+                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
+                .where(EMPLOYEE.as("Empl").SUPERVISOR_ID.isNull())
+                .orderBy(EMPLOYEE.as("Empl").ID)
+                .fetch()
+                .into(EmployeeSupervisorEntity.class);
+    }
 
-        recordResultMap.forEach((record, result) -> {
-            EmployeeRecursiveGroupedEntity group = record.into(EmployeeRecursiveGroupedEntity.class);
-            List<EmployeeRecursiveGroupedEntity> children = new ArrayList<EmployeeRecursiveGroupedEntity>();
-
-            result.forEach(r -> {
-                if (Objects.nonNull(r.getValue(6))) {
-                    children.add(r.into(EmployeeRecursiveGroupedEntity.class));
-                }
-            });
-
-            for(EmployeeRecursiveGroupedEntity child : children) {
-                group.setChildren(child);
-            }
-            //group.setChildren(children);
-            resultList.add(group);
-
-        });
-
-        return resultList;
-    }*/
+    public List<EmployeeSupervisorEntity> getBranch(Integer id) {
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+                .from(EMPLOYEE.as("Empl"))
+                .join(ORGANIZATION)
+                .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .leftJoin(EMPLOYEE.as("Supv"))
+                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
+                .where(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(id))
+                .orderBy(EMPLOYEE.as("Empl").ID)
+                .fetch()
+                .into(EmployeeSupervisorEntity.class);
+    }
 }

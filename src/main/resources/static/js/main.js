@@ -5,6 +5,10 @@ app.config(function ($routeProvider, $locationProvider) {
         .when('/', {
             templateUrl: '/home.html'
         })
+        .when('/employees/tree', {
+            templateUrl: '/employees/tree.html',
+            controller: 'employeeController'
+        })
         .when('/employees/list', {
             templateUrl: '/employees/list.html',
             controller: 'employeeController'
@@ -37,7 +41,7 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             })
             .catch(function (result) {
                 console.log('error get employee list');
-            });
+            })
     };
 
     $scope.getEmployeeById = function () {
@@ -76,7 +80,7 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             })
             .catch(function (result) {
                 console.log('error create employee');
-            });
+            })
     };
 
     $scope.editEmployee = function (employee) {
@@ -97,7 +101,7 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             })
             .catch(function (result) {
                 console.log('error update employee', employee);
-            });
+            })
     };
 
     $scope.clearInputs = function () {
@@ -113,7 +117,7 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             })
             .catch(function (result) {
                 console.log('error get organizations');
-            });
+            })
     };
 
     /*ДОПИЛ НА ЕСЛИ НЕТ ЕЩЕ СУПЕРВИЗОРОВ*/
@@ -156,7 +160,7 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
                 })
                 .catch(function (result) {
                     console.log('error get supervisor by organization');
-                });
+                })
         }
     };
 
@@ -253,5 +257,70 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
         console.log(list);
         $http.put('http://localhost:8080/employee/delete', list);
         location.reload();
+    };
+
+    /**/
+    $scope.createTree = function () {
+        $http.get('http://localhost:8080/employee/getTree')
+            .then(function (result) {
+                $scope.data = result.data;
+                var container = document.getElementsByName("tree")[0];
+                container.innerHTML = $scope.createTreeDom($scope.data);
+            })
+            .catch(function (result) {
+                console.log('fail');
+            })
+    };
+
+    $scope.createTreeDom = function (obj) {
+        /*
+        * создать
+        * */
+    };
+
+    /*корень*/
+    $scope.createRoot = function () {
+        $http.get('http://localhost:8080/employee/getRoot')
+            .then(function (result) {
+                $scope.root = result.data;
+                var container = document.getElementsByName("tree")[0];
+                var ul = document.createElement('ul');
+                for (var i = 0; i < $scope.root.length; i ++)
+                {
+                    var li = document.createElement('li');
+                    li.innerHTML = $scope.root[i].surname;
+                    li.value = $scope.root[i].id;
+                    li.addEventListener('click', $scope.createBranch(li, li.value), false);
+                    ul.append(li);
+                }
+                container.append(ul);
+            })
+            .catch(function (result) {
+                console.log('fail');
+            })
+    };
+
+    /*ветки*/
+    $scope.createBranch = function (elem, id) {
+        var branch;
+        $http.get('http://localhost:8080/employee/'+id+'/getBranch')
+            .then(function (result) {
+                branch = result.data;
+                if (!branch.length) return;
+
+                var ul = document.createElement('ul');
+                for (var i = 0; i < branch.length; i++) {
+                    var li = document.createElement('li');
+                    li.innerHTML = branch[i].surname;
+                    li.value = branch[i].id;
+                    li.addEventListener('click', $scope.createBranch(li, li.value), false);
+                    ul.append(li);
+                }
+                elem.append(ul);
+
+            })
+            .catch(function (result) {
+                console.log('fail');
+            })
     }
 });

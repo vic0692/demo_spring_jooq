@@ -8,6 +8,7 @@ import com.example.jooq.demo_jooq.Repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
 import org.jooq.Record5;
 import org.jooq.Result;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -61,4 +62,11 @@ public class EmployeeService {
         return repository.getEmployeeTree1();
     }*/
 
+    public List<EmployeeSupervisorEntity> getRoot() {
+        return repository.getRoot();
+    }
+
+    public List<EmployeeSupervisorEntity> getBranch(Integer id) {
+        return repository.getBranch(id);
+    }
 }

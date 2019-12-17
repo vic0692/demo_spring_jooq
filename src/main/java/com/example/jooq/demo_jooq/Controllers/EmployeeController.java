@@ -64,4 +64,14 @@ public class EmployeeController {
     public List<EmployeeRecursiveGroupedEntity> getEmployeeTree1() {
         return service.getEmployeeTree1();
     }*/
+
+    @GetMapping(path = "/getRoot")
+    public List<EmployeeSupervisorEntity> getRoot() {
+        return service.getRoot();
+    }
+
+    @GetMapping(path = "{id}/getBranch")
+    public List<EmployeeSupervisorEntity> getBranch(@PathVariable Integer id) {
+        return service.getBranch(id);
+    }
 }
