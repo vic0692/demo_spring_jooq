@@ -1,0 +1,21 @@
+<h1>New organization</h1>
+<div ng-controller="organizationController" ng-init="getOrganizations()">
+    <div style="display:flex; flex-direction: row; flex-wrap: nowrap" >
+        <div style="float:left">
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Organization name: </label><input type="text" ng-model="organization.organizationName">
+            </div>
+            <div style="clear:both; text-align:right">
+                <label style="float:left">Parent organization: </label>
+                <select ng-model="organization.parentOrganizationId" name="organizationSelect" ng-change="getOrganizationId()">
+                    <option value="">Choose organization</option>
+                    <option ng-repeat="organization in organizations" value="{{organization.id}}">{{organization.organizationName}}</option>
+                </select>
+            </div>
+        </div>
+        <input type="button" value="Submit" ng-click="addOrganization(organization)">
+    </div>
+
+    <a href="#/organizations/list" ng-click="clearInputs()">Back to list</a>
+
+</div>

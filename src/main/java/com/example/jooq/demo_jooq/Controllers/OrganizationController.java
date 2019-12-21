@@ -63,5 +63,24 @@ public class OrganizationController {
     public List<OrganizationRecursiveEntity> getOrganizationTree() {
         return service.getOrganizationTree();
     }
+    @GetMapping(path = "{id}/getTree")
+    public List<OrganizationRecursiveEntity> getOrganizationTreeById(@PathVariable Integer id) {
+        return service.getOrganizationTreeById(id);
+    }
+
+    @GetMapping(path = "/getOrganizationParent")
+    public List<OrganizationParentEntity> getOrganizationParentName() {
+        return service.getOrganizationParentName();
+    }
+
+    @GetMapping(path = "/getRoot")
+    public List<OrganizationParentEntity> getRoot() {
+        return service.getRoot();
+    }
+
+    @GetMapping(path = "{id}/getBranch")
+    public List<OrganizationParentEntity> getBranch(@PathVariable Integer id) {
+        return service.getBranch(id);
+    }
 
 }

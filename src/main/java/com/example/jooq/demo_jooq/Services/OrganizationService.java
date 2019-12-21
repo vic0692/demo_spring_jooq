@@ -1,9 +1,6 @@
 package com.example.jooq.demo_jooq.Services;
 
-import com.example.jooq.demo_jooq.Entities.EmployeeCountEntity;
-import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
-import com.example.jooq.demo_jooq.Entities.OrganizationEntity;
-import com.example.jooq.demo_jooq.Entities.OrganizationRecursiveEntity;
+import com.example.jooq.demo_jooq.Entities.*;
 import com.example.jooq.demo_jooq.Repository.OrganizationRepository;
 import com.example.jooq.demo_jooq.introduction.db.tables.Organization;
 import lombok.AllArgsConstructor;
@@ -62,6 +59,22 @@ public class OrganizationService {
 
     public List<OrganizationRecursiveEntity> getOrganizationTree() {
         return repository.getOrganizationTree();
+    }
+
+    public List<OrganizationParentEntity> getOrganizationParentName() {
+        return repository.getOrganizationParentName();
+    }
+
+    public List<OrganizationRecursiveEntity> getOrganizationTreeById(Integer id) {
+        return repository.getOrganizationTreeById(id);
+    }
+
+    public List<OrganizationParentEntity> getRoot() {
+        return repository.getRoot();
+    }
+
+    public List<OrganizationParentEntity> getBranch(Integer id) {
+        return repository.getBranch(id);
     }
 }
 

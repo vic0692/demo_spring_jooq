@@ -143,4 +143,55 @@ public class OrganizationRepository {
                 .fetch()
                 .into(OrganizationRecursiveEntity.class);
     }
+
+    public List<OrganizationRecursiveEntity> getOrganizationTreeById(Integer id) {
+        Field<Integer[]> path = array(ORGANIZATION.ID).as("path");
+        Field<Integer> level = inline(1).as("level");
+        Field<String> display = inline("- ").concat(ORGANIZATION.ORGANIZATION_NAME).as("display");
+
+        return dslContext.withRecursive("r").as(
+                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATION_NAME, ORGANIZATION.PARENT_ORGANIZATION, path, level, display)
+                        .from(ORGANIZATION)
+                        .where(ORGANIZATION.PARENT_ORGANIZATION.eq(id))
+                        .unionAll(
+                                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATION_NAME, ORGANIZATION.PARENT_ORGANIZATION, PostgresDSL.arrayAppend(path, ORGANIZATION.ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(ORGANIZATION.ID))
+                                        .from(ORGANIZATION)
+                                        .join(table(name("r"))).on(field(name("r", "id"), Integer.class).eq(ORGANIZATION.PARENT_ORGANIZATION)))
+
+        )
+                .select()
+                .from(table(name("r")))
+                .orderBy(path)
+                .fetch()
+                .into(OrganizationRecursiveEntity.class);
+    }
+
+    public List<OrganizationParentEntity> getOrganizationParentName() {
+        return dslContext.select(ORGANIZATION.as("org").ID.as("id"), ORGANIZATION.as("org").ORGANIZATION_NAME.as("organizationName"), ORGANIZATION.as("org").PARENT_ORGANIZATION.as("parentOrganizationId"), ORGANIZATION.as("parent").ORGANIZATION_NAME.as("parentOrganizationName"))
+                .from(ORGANIZATION.as("org"))
+                .leftJoin(ORGANIZATION.as("parent"))
+                .on(ORGANIZATION.as("org").PARENT_ORGANIZATION.eq(ORGANIZATION.as("parent").ID))
+                .fetch()
+                .into(OrganizationParentEntity.class);
+    }
+
+    public List<OrganizationParentEntity> getRoot() {
+        return dslContext.select(ORGANIZATION.as("org").ID.as("id"), ORGANIZATION.as("org").ORGANIZATION_NAME.as("organizationName"), ORGANIZATION.as("org").PARENT_ORGANIZATION.as("parentOrganizationId"), ORGANIZATION.as("parent").ORGANIZATION_NAME.as("parentOrganizationName"))
+                .from(ORGANIZATION.as("org"))
+                .leftJoin(ORGANIZATION.as("parent"))
+                .on(ORGANIZATION.as("org").PARENT_ORGANIZATION.eq(ORGANIZATION.as("parent").ID))
+                .where(ORGANIZATION.as("org").PARENT_ORGANIZATION.isNull())
+                .fetch()
+                .into(OrganizationParentEntity.class);
+    }
+
+    public List<OrganizationParentEntity> getBranch(Integer id) {
+        return dslContext.select(ORGANIZATION.as("org").ID.as("id"), ORGANIZATION.as("org").ORGANIZATION_NAME.as("organizationName"), ORGANIZATION.as("org").PARENT_ORGANIZATION.as("parentOrganizationId"), ORGANIZATION.as("parent").ORGANIZATION_NAME.as("parentOrganizationName"))
+                .from(ORGANIZATION.as("org"))
+                .leftJoin(ORGANIZATION.as("parent"))
+                .on(ORGANIZATION.as("org").PARENT_ORGANIZATION.eq(ORGANIZATION.as("parent").ID))
+                .where(ORGANIZATION.as("org").PARENT_ORGANIZATION.eq(id))
+                .fetch()
+                .into(OrganizationParentEntity.class);
+    }
 }

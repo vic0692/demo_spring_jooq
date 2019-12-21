@@ -1,0 +1,23 @@
+<div ng-init="getOrganizations()">
+    <div>
+        <a href="#/organizations/new">Add new organization</a>
+        <a href="" ng-click="deleteSelectedOrganizations()">Delete organization</a>
+    </div>
+
+    <div>
+        <table width="860px" cellpadding="5px" cellspacing="0" border="1px solid black" border-collapse="collapse">
+            <tr>
+                <th><input type="checkbox" ng-model="isChecked" ng-change="selectAllOrganizations()"></th>
+                <th>Organization Name</th>
+                <th>Parent organization</th>
+                <th>Delete</th>
+            </tr>
+            <tr ng-repeat="organization in organizations">
+                <td><input type="checkbox" name="{{organization.surname}}" value="{{organization.id}}" ng-model="selectedOrganization[organization.id]" ng-checked="isChecked" ng-change="selectOrganization(organization.id)"></td>
+                <td ng-model="organization.organizationName"><a href="#/organizations/{{organization.id}}/edit">{{organization.organizationName}}</a></td>
+                <td>{{organization.parentOrganizationName}}</td>
+                <td><a href="" ng-click="deleteOrganization(organization.id)">Delete</a></td>
+            </tr>
+        </table>
+    </div>
+</div>
