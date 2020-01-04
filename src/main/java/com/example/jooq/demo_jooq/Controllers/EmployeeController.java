@@ -2,17 +2,16 @@ package com.example.jooq.demo_jooq.Controllers;
 
 import com.example.jooq.demo_jooq.Entities.EmployeeEntity;
 import com.example.jooq.demo_jooq.Entities.EmployeeRecursiveEntity;
-import com.example.jooq.demo_jooq.Entities.EmployeeRecursiveGroupedEntity;
 import com.example.jooq.demo_jooq.Entities.EmployeeSupervisorEntity;
 import com.example.jooq.demo_jooq.Services.EmployeeService;
 
 import lombok.AllArgsConstructor;
-import org.jooq.Record5;
-import org.jooq.Result;
+import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.lang.Integer;
 
 @RestController
 @RequestMapping(value = "/employee", produces = "application/json; charset=UTF-8")
@@ -73,5 +72,32 @@ public class EmployeeController {
     @GetMapping(path = "{id}/getBranch")
     public List<EmployeeSupervisorEntity> getBranch(@PathVariable Integer id) {
         return service.getBranch(id);
+    }
+
+    @GetMapping(path = "/getPage/{page}")
+    public List<EmployeeSupervisorEntity> getPage(@PathVariable Integer page) {
+        return service.getPage(page);
+    }
+
+    @GetMapping(path = "/employeeCount")
+    public Integer getCount() {
+        return service.getCount();
+    }
+
+    @GetMapping(path = "/pagesCount")
+    public Integer getPageCount() {
+        return service.countPages();
+    }
+
+
+
+    @GetMapping(path = "/getFilteredPage/{page}")
+    public List<EmployeeSupervisorEntity> getFilteredPage(@PathVariable Integer page, @RequestBody String employee, @RequestBody String organization) {
+        return service.getFilteredPage(page, employee, organization);
+    }
+
+    @GetMapping(path = "/employeeFilteredCount")
+    public Integer getFilteredCount(@RequestBody String employee, @RequestBody String organization) {
+        return service.getFilteredCount(employee, organization);
     }
 }

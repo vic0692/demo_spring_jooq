@@ -6,6 +6,7 @@ import com.example.jooq.demo_jooq.Entities.EmployeeRecursiveGroupedEntity;
 import com.example.jooq.demo_jooq.introduction.db.tables.daos.EmployeeDao;
 import com.example.jooq.demo_jooq.introduction.db.tables.pojos.Employee;
 import lombok.AllArgsConstructor;
+import lombok.val;
 import org.jooq.*;
 import org.jooq.impl.DSL.*;
 import org.jooq.util.postgres.PostgresDSL;
@@ -18,6 +19,7 @@ import static com.example.jooq.demo_jooq.introduction.db.tables.Employee.EMPLOYE
 import static com.example.jooq.demo_jooq.introduction.db.tables.Organization.ORGANIZATION;
 import static org.jooq.impl.DSL.*;
 import static org.jooq.util.postgres.PostgresDSL.array;
+import static org.jooq.util.postgres.PostgresDSL.stringToArray;
 
 import java.util.*;
 
@@ -211,5 +213,65 @@ public class EmployeeRepository {
                 .orderBy(EMPLOYEE.as("Empl").ID)
                 .fetch()
                 .into(EmployeeSupervisorEntity.class);
+    }
+
+    /*получить страницу записей*/
+    public List<EmployeeSupervisorEntity> getPage(Integer pageSize,  Integer start) {
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+                .from(EMPLOYEE.as("Empl"))
+                .join(ORGANIZATION)
+                .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .leftJoin(EMPLOYEE.as("Supv"))
+                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
+                .orderBy(EMPLOYEE.as("Empl").ID)
+                .offset(start)
+                .limit(pageSize)
+                .fetch()
+                .into(EmployeeSupervisorEntity.class);
+    }
+
+    public Integer getCount() {
+        return dslContext.selectCount()
+                .from(EMPLOYEE)
+                .fetchOne()
+                .into(Integer.class);
+    }
+
+    public List<EmployeeSupervisorEntity> getPageFiltered(Integer pageSize,  Integer start, String surname, String organization) {
+        Condition condition = EMPLOYEE.ID.isNotNull();
+        if (surname.length() > 0) {
+            condition = condition.and(EMPLOYEE.as("Empl").SURNAME.like(surname));
+        }
+        if (organization.length() > 0) {
+            condition = condition.and(ORGANIZATION.ORGANIZATION_NAME.like(organization));
+        }
+
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+                .from(EMPLOYEE.as("Empl"))
+                .join(ORGANIZATION)
+                .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .leftJoin(EMPLOYEE.as("Supv"))
+                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
+                .where(condition)
+                .orderBy(EMPLOYEE.as("Empl").ID)
+                .offset(start)
+                .limit(pageSize)
+                .fetch()
+                .into(EmployeeSupervisorEntity.class);
+    }
+
+    public Integer getCountFiltered(String surname, String organization) {
+        Condition condition = EMPLOYEE.ID.isNotNull();
+        if (surname.length() > 0) {
+            condition = condition.and(EMPLOYEE.as("Empl").SURNAME.like(surname));
+        }
+        if (organization.length() > 0) {
+            condition = condition.and(ORGANIZATION.ORGANIZATION_NAME.like(organization));
+        }
+        return dslContext.selectCount()
+                .from(EMPLOYEE)
+                .where(condition)
+                .fetchOne()
+                .into(Integer.class);
     }
 }

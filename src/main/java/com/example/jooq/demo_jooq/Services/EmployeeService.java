@@ -69,4 +69,47 @@ public class EmployeeService {
     public List<EmployeeSupervisorEntity> getBranch(Integer id) {
         return repository.getBranch(id);
     }
+
+    public List<EmployeeSupervisorEntity> getPage(Integer page) {
+        Integer pageSize = 5;
+        Integer pages = countPages();
+        Integer start = pageSize * (page - 1);
+        return repository.getPage(pageSize, start);
+    }
+
+    public Integer getCount() {
+        return repository.getCount();
+    }
+
+    public Integer countPages() {
+        Integer pageSize = 5;
+        Integer count = getCount();
+        Integer pages = count / pageSize;
+        if (count % pageSize > 0) {
+            pages++;
+        }
+        return pages;
+    }
+
+
+    public List<EmployeeSupervisorEntity> getFilteredPage(Integer page, String employee, String organization) {
+        Integer pageSize = 5;
+        Integer pages = countPagesFiltered(employee, organization);
+        Integer start = pageSize * (page - 1);
+        return repository.getPageFiltered(page, start, employee, organization);
+    }
+
+    public Integer getFilteredCount(String employee, String organization) {
+        return repository.getCountFiltered(employee, organization);
+    }
+
+    public Integer countPagesFiltered(String employee, String organization) {
+        Integer pageSize = 5;
+        Integer count = getFilteredCount(employee, organization);
+        Integer pages = count / pageSize;
+        if (count % pageSize > 0) {
+            pages++;
+        }
+        return pages;
+    }
 }

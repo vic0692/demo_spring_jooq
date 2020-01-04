@@ -4,6 +4,18 @@
         <a href="" ng-click="deleteSelectedEmployees()">Delete employees</a>
     </div>
 
+    <br />
+
+    <div>
+        <label>Employee: </label>
+        <input type="text" name="employeeSearch" ng-model="employeeSearch">
+        <input type="text" name="organizationSearch" ng-model="organizationSearch">
+        <input type="button" ng-click="filterEmployee(employeeSearch, organizationSearch)" title="Search" value="Search">
+        <input type="button" ng-click="getPage(1)" title="Reset" value="Reset">
+    </div>
+
+    <br />
+
     <div>
         <table width="860px" cellpadding="5px" cellspacing="0" border="1px solid black" border-collapse="collapse">
             <tr>
@@ -25,5 +37,11 @@
                 <td><a href="" ng-click="deleteEmployee(employee.id)">Delete</a></td>
             </tr>
         </table>
+    </div>
+
+    <br />
+
+    <div name="paging" ng-click="getPage($event.target)">
+        <a href="#/employees/list" value="1">1 </a>
     </div>
 </div>
