@@ -8,6 +8,7 @@ import com.example.jooq.demo_jooq.Repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
 import org.jooq.Record5;
 import org.jooq.Result;
+import org.jooq.tools.json.JSONObject;
 import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 
@@ -92,18 +93,18 @@ public class EmployeeService {
     }
 
 
-    public List<EmployeeSupervisorEntity> getFilteredPage(Integer page, String employee, String organization) {
+    public List<EmployeeSupervisorEntity> getFilteredPage(Integer page, JSONObject json) {
         Integer pageSize = 5;
-        Integer pages = countPagesFiltered(employee, organization);
+        //Integer pages = countPagesFiltered(employee, organization);
         Integer start = pageSize * (page - 1);
-        return repository.getPageFiltered(page, start, employee, organization);
+        return repository.getPageFiltered(pageSize, start, json);
     }
 
-    public Integer getFilteredCount(String employee, String organization) {
-        return repository.getCountFiltered(employee, organization);
+    public Integer getFilteredCount(JSONObject json) {
+        return repository.getCountFiltered(json);
     }
 
-    public Integer countPagesFiltered(String employee, String organization) {
+    /*public Integer countPagesFiltered(String employee, String organization) {
         Integer pageSize = 5;
         Integer count = getFilteredCount(employee, organization);
         Integer pages = count / pageSize;
@@ -111,5 +112,5 @@ public class EmployeeService {
             pages++;
         }
         return pages;
-    }
+    }*/
 }

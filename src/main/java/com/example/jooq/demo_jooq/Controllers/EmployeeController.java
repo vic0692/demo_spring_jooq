@@ -6,6 +6,7 @@ import com.example.jooq.demo_jooq.Entities.EmployeeSupervisorEntity;
 import com.example.jooq.demo_jooq.Services.EmployeeService;
 
 import lombok.AllArgsConstructor;
+import org.jooq.tools.json.JSONObject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -91,13 +92,15 @@ public class EmployeeController {
 
 
 
-    @GetMapping(path = "/getFilteredPage/{page}")
-    public List<EmployeeSupervisorEntity> getFilteredPage(@PathVariable Integer page, @RequestBody String employee, @RequestBody String organization) {
-        return service.getFilteredPage(page, employee, organization);
+    @PostMapping(path = "/getFilteredPage/{page}")
+    public List<EmployeeSupervisorEntity> getFilteredPage(@PathVariable Integer page, @RequestBody JSONObject json) {
+        return service.getFilteredPage(page, json);
     }
 
-    @GetMapping(path = "/employeeFilteredCount")
-    public Integer getFilteredCount(@RequestBody String employee, @RequestBody String organization) {
-        return service.getFilteredCount(employee, organization);
+    @PostMapping(path = "/employeeFilteredCount")
+    public Integer getFilteredCount(@RequestBody JSONObject json) {
+        System.out.println(json);
+        //JSONObject jsonObject = new JSONObject(json.substring(json.indexOf("{"), json.indexOf("}") + 1));
+        return service.getFilteredCount(json);
     }
 }

@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.val;
 import org.jooq.*;
 import org.jooq.impl.DSL.*;
+import org.jooq.tools.json.JSONObject;
 import org.jooq.util.postgres.PostgresDSL;
 import org.springframework.stereotype.Repository;
 import com.example.jooq.demo_jooq.Entities.EmployeeSupervisorEntity;
@@ -237,13 +238,13 @@ public class EmployeeRepository {
                 .into(Integer.class);
     }
 
-    public List<EmployeeSupervisorEntity> getPageFiltered(Integer pageSize,  Integer start, String surname, String organization) {
-        Condition condition = EMPLOYEE.ID.isNotNull();
-        if (surname.length() > 0) {
-            condition = condition.and(EMPLOYEE.as("Empl").SURNAME.like(surname));
+    public List<EmployeeSupervisorEntity> getPageFiltered(Integer pageSize, Integer start, JSONObject json) {
+        Condition condition = EMPLOYEE.as("Empl").ID.isNotNull();
+        if (json.get("employee").toString().length() > 0) {
+            condition = condition.and(EMPLOYEE.as("Empl").SURNAME.like(json.get("employee").toString()));
         }
-        if (organization.length() > 0) {
-            condition = condition.and(ORGANIZATION.ORGANIZATION_NAME.like(organization));
+        if (json.get("organization").toString().length() > 0) {
+            condition = condition.and(ORGANIZATION.ORGANIZATION_NAME.like(json.get("organization").toString()));
         }
 
         return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
@@ -260,16 +261,21 @@ public class EmployeeRepository {
                 .into(EmployeeSupervisorEntity.class);
     }
 
-    public Integer getCountFiltered(String surname, String organization) {
+    public Integer getCountFiltered(JSONObject json) {
         Condition condition = EMPLOYEE.ID.isNotNull();
-        if (surname.length() > 0) {
-            condition = condition.and(EMPLOYEE.as("Empl").SURNAME.like(surname));
+        if (json.get("employee").toString().length() > 0) {
+            //if (surname.length() > 0) {
+            condition = condition.and(EMPLOYEE.SURNAME.like(json.get("employee").toString()));
         }
-        if (organization.length() > 0) {
-            condition = condition.and(ORGANIZATION.ORGANIZATION_NAME.like(organization));
+
+        if (json.get("organization").toString().length() > 0) {
+            condition = condition.and(ORGANIZATION.ORGANIZATION_NAME.like(json.get("organization").toString()));
         }
+
         return dslContext.selectCount()
                 .from(EMPLOYEE)
+                .fullJoin(ORGANIZATION)
+                .on(EMPLOYEE.ORGANIZATION_ID.eq(ORGANIZATION.ID))
                 .where(condition)
                 .fetchOne()
                 .into(Integer.class);
