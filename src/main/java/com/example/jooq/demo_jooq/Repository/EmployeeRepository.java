@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 import com.example.jooq.demo_jooq.Entities.EmployeeSupervisorEntity;
 import org.thymeleaf.expression.Lists;
 
-import static com.example.jooq.demo_jooq.introduction.db.Sequences.EMPLOYEE_ID_SEQ1;
+import static com.example.jooq.demo_jooq.introduction.db.Sequences.EMPLOYEE_ID_SEQ;
 import static com.example.jooq.demo_jooq.introduction.db.tables.Employee.EMPLOYEE;
 import static com.example.jooq.demo_jooq.introduction.db.tables.Organization.ORGANIZATION;
 import static org.jooq.impl.DSL.*;
@@ -34,15 +34,15 @@ public class EmployeeRepository {
     public Integer createEmployee(EmployeeEntity employeeEntity) {
         /*нужна возможность добавления руководителя только данной организации*/
 
-        Integer id = dslContext.nextval(EMPLOYEE_ID_SEQ1);
+        Integer id = dslContext.nextval(EMPLOYEE_ID_SEQ);
 
         Employee employee = new Employee();
         employee.setId(id);
         employee.setSurname(employeeEntity.getSurname());
         employee.setName(employeeEntity.getName());
         employee.setPatronymic(employeeEntity.getPatronymic());
-        employee.setOrganizationId(employeeEntity.getOrganizationId());
-        employee.setSupervisorId(employeeEntity.getSupervisorId());
+        employee.setOrganizationid(employeeEntity.getOrganizationId());
+        employee.setSupervisorid(employeeEntity.getSupervisorId());
 
         employeeDao.insert(employee);
 
@@ -70,8 +70,8 @@ public class EmployeeRepository {
         dslContext.update(EMPLOYEE).set(EMPLOYEE.SURNAME, employee.getSurname())
                 .set(EMPLOYEE.NAME, employee.getName())
                 .set(EMPLOYEE.PATRONYMIC, employee.getPatronymic())
-                .set(EMPLOYEE.ORGANIZATION_ID, employee.getOrganizationId())
-                .set(EMPLOYEE.SUPERVISOR_ID, employee.getSupervisorId())
+                .set(EMPLOYEE.ORGANIZATIONID, employee.getOrganizationId())
+                .set(EMPLOYEE.SUPERVISORID, employee.getSupervisorId())
                 .where(EMPLOYEE.ID.eq(id))
                 .execute();
         return id;
@@ -84,7 +84,7 @@ public class EmployeeRepository {
     }
 
     public List<Integer> getAllSupervisorsByIds(List<Integer> ids) {
-        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID)
+        return dslContext.selectDistinct(EMPLOYEE.SUPERVISORID)
                 .from(EMPLOYEE)
                 .where(EMPLOYEE.ID.in(ids))
                 .fetch()
@@ -92,27 +92,27 @@ public class EmployeeRepository {
     }
 
     public List<Integer> getAllSupervisors() {
-        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID)
+        return dslContext.selectDistinct(EMPLOYEE.SUPERVISORID)
                 .from(EMPLOYEE)
                 .fetch()
                 .into(Integer.TYPE);
     }
 
     public Collection<Integer> getEmployeesWithSubordinatesByIds(List<Integer> ids) {
-        return dslContext.selectDistinct(EMPLOYEE.SUPERVISOR_ID)
+        return dslContext.selectDistinct(EMPLOYEE.SUPERVISORID)
                 .from(EMPLOYEE)
-                .where(EMPLOYEE.SUPERVISOR_ID.in(ids))
+                .where(EMPLOYEE.SUPERVISORID.in(ids))
                 .fetch()
                 .into(Integer.TYPE);
     }
 
     public List<EmployeeSupervisorEntity> getEmployeeSupervisor() {
-        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATIONID, ORGANIZATION.ORGANIZATIONNAME, EMPLOYEE.as("Empl").SUPERVISORID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
                 .from(EMPLOYEE.as("Empl"))
                 .join(ORGANIZATION)
-                .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .on(EMPLOYEE.as("Empl").ORGANIZATIONID.equal(ORGANIZATION.ID))
                 .leftJoin(EMPLOYEE.as("Supv"))
-                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
+                .on(EMPLOYEE.as("Empl").SUPERVISORID.eq(EMPLOYEE.as("Supv").ID))
                 .orderBy(EMPLOYEE.as("Empl").ID)
                 .fetch()
                 .into(EmployeeSupervisorEntity.class);
@@ -134,22 +134,22 @@ public class EmployeeRepository {
         Field<String> display = inline("- ").concat(EMPLOYEE.as("Empl").SURNAME).as("display");
 
         return dslContext.withRecursive("r").as(
-                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, EMPLOYEE.as("Empl").SUPERVISOR_ID, ORGANIZATION.ORGANIZATION_NAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"), path, level, display)
+                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATIONID, EMPLOYEE.as("Empl").SUPERVISORID, ORGANIZATION.ORGANIZATIONNAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"), path, level, display)
                         .from(EMPLOYEE.as("Empl"))
                         .fullJoin(ORGANIZATION)
-                        .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.eq(ORGANIZATION.ID))
+                        .on(EMPLOYEE.as("Empl").ORGANIZATIONID.eq(ORGANIZATION.ID))
                         .leftJoin(EMPLOYEE.as("supv"))
-                        .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("supv").ID))
-                        .where(EMPLOYEE.as("Empl").SUPERVISOR_ID.isNull())
+                        .on(EMPLOYEE.as("Empl").SUPERVISORID.eq(EMPLOYEE.as("supv").ID))
+                        .where(EMPLOYEE.as("Empl").SUPERVISORID.isNull())
                         .unionAll(
-                                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, EMPLOYEE.as("Empl").SUPERVISOR_ID, ORGANIZATION.ORGANIZATION_NAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"), PostgresDSL.arrayAppend(path, EMPLOYEE.as("Empl").ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(EMPLOYEE.as("Empl").ID))
+                                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATIONID, EMPLOYEE.as("Empl").SUPERVISORID, ORGANIZATION.ORGANIZATIONNAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"), PostgresDSL.arrayAppend(path, EMPLOYEE.as("Empl").ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(EMPLOYEE.as("Empl").ID))
                                         .from(EMPLOYEE.as("Empl"))
                                         .fullJoin(ORGANIZATION)
-                                        .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.eq(ORGANIZATION.ID))
+                                        .on(EMPLOYEE.as("Empl").ORGANIZATIONID.eq(ORGANIZATION.ID))
                                         .leftJoin(EMPLOYEE.as("supv"))
-                                        .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.equal(EMPLOYEE.as("supv").ID))
+                                        .on(EMPLOYEE.as("Empl").SUPERVISORID.equal(EMPLOYEE.as("supv").ID))
                                         .join(table(name("r")))
-                                        .on(field(name("r", "id"), Integer.class).eq(EMPLOYEE.as("Empl").SUPERVISOR_ID)))
+                                        .on(field(name("r", "id"), Integer.class).eq(EMPLOYEE.as("Empl").SUPERVISORID)))
 
         )
                 .select()
@@ -165,22 +165,22 @@ public class EmployeeRepository {
         Field<String> display = inline("- ").concat(EMPLOYEE.as("Empl").SURNAME).as("display");
 
         return dslContext.withRecursive("r").as(
-                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, EMPLOYEE.as("Empl").SUPERVISOR_ID, ORGANIZATION.ORGANIZATION_NAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"))
+                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATIONID, EMPLOYEE.as("Empl").SUPERVISORID, ORGANIZATION.ORGANIZATIONNAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"))
                         .from(EMPLOYEE.as("Empl"))
                         .fullJoin(ORGANIZATION)
-                        .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.eq(ORGANIZATION.ID))
+                        .on(EMPLOYEE.as("Empl").ORGANIZATIONID.eq(ORGANIZATION.ID))
                         .leftJoin(EMPLOYEE.as("supv"))
-                        .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("supv").ID))
-                        .where(EMPLOYEE.as("Empl").SUPERVISOR_ID.isNull())
+                        .on(EMPLOYEE.as("Empl").SUPERVISORID.eq(EMPLOYEE.as("supv").ID))
+                        .where(EMPLOYEE.as("Empl").SUPERVISORID.isNull())
                         .unionAll(
-                                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, EMPLOYEE.as("Empl").SUPERVISOR_ID, ORGANIZATION.ORGANIZATION_NAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"))
+                                select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATIONID, EMPLOYEE.as("Empl").SUPERVISORID, ORGANIZATION.ORGANIZATIONNAME.as("organizationName"), EMPLOYEE.as("supv").SURNAME.as("supervisorName"))
                                         .from(EMPLOYEE.as("Empl"))
                                         .fullJoin(ORGANIZATION)
-                                        .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.eq(ORGANIZATION.ID))
+                                        .on(EMPLOYEE.as("Empl").ORGANIZATIONID.eq(ORGANIZATION.ID))
                                         .leftJoin(EMPLOYEE.as("supv"))
-                                        .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.equal(EMPLOYEE.as("supv").ID))
+                                        .on(EMPLOYEE.as("Empl").SUPERVISORID.equal(EMPLOYEE.as("supv").ID))
                                         .join(table(name("r")))
-                                        .on(field(name("r", "id"), Integer.class).eq(EMPLOYEE.as("Empl").SUPERVISOR_ID)))
+                                        .on(field(name("r", "id"), Integer.class).eq(EMPLOYEE.as("Empl").SUPERVISORID)))
 
         )
                 .select()
@@ -191,26 +191,26 @@ public class EmployeeRepository {
     }
 
     public List<EmployeeSupervisorEntity> getRoot() {
-        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATIONID, ORGANIZATION.ORGANIZATIONNAME, EMPLOYEE.as("Empl").SUPERVISORID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
                 .from(EMPLOYEE.as("Empl"))
                 .join(ORGANIZATION)
-                .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .on(EMPLOYEE.as("Empl").ORGANIZATIONID.equal(ORGANIZATION.ID))
                 .leftJoin(EMPLOYEE.as("Supv"))
-                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
-                .where(EMPLOYEE.as("Empl").SUPERVISOR_ID.isNull())
+                .on(EMPLOYEE.as("Empl").SUPERVISORID.eq(EMPLOYEE.as("Supv").ID))
+                .where(EMPLOYEE.as("Empl").SUPERVISORID.isNull())
                 .orderBy(EMPLOYEE.as("Empl").ID)
                 .fetch()
                 .into(EmployeeSupervisorEntity.class);
     }
 
     public List<EmployeeSupervisorEntity> getBranch(Integer id) {
-        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATIONID, ORGANIZATION.ORGANIZATIONNAME, EMPLOYEE.as("Empl").SUPERVISORID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
                 .from(EMPLOYEE.as("Empl"))
                 .join(ORGANIZATION)
-                .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .on(EMPLOYEE.as("Empl").ORGANIZATIONID.equal(ORGANIZATION.ID))
                 .leftJoin(EMPLOYEE.as("Supv"))
-                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
-                .where(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(id))
+                .on(EMPLOYEE.as("Empl").SUPERVISORID.eq(EMPLOYEE.as("Supv").ID))
+                .where(EMPLOYEE.as("Empl").SUPERVISORID.eq(id))
                 .orderBy(EMPLOYEE.as("Empl").ID)
                 .fetch()
                 .into(EmployeeSupervisorEntity.class);
@@ -218,12 +218,12 @@ public class EmployeeRepository {
 
     /*получить страницу записей*/
     public List<EmployeeSupervisorEntity> getPage(Integer pageSize,  Integer start) {
-        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATIONID, ORGANIZATION.ORGANIZATIONNAME, EMPLOYEE.as("Empl").SUPERVISORID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
                 .from(EMPLOYEE.as("Empl"))
                 .join(ORGANIZATION)
-                .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .on(EMPLOYEE.as("Empl").ORGANIZATIONID.equal(ORGANIZATION.ID))
                 .leftJoin(EMPLOYEE.as("Supv"))
-                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
+                .on(EMPLOYEE.as("Empl").SUPERVISORID.eq(EMPLOYEE.as("Supv").ID))
                 .orderBy(EMPLOYEE.as("Empl").ID)
                 .offset(start)
                 .limit(pageSize)
@@ -244,15 +244,15 @@ public class EmployeeRepository {
             condition = condition.and(EMPLOYEE.as("Empl").SURNAME.like(json.get("employee").toString()));
         }
         if (json.get("organization").toString().length() > 0) {
-            condition = condition.and(ORGANIZATION.ORGANIZATION_NAME.like(json.get("organization").toString()));
+            condition = condition.and(ORGANIZATION.ORGANIZATIONNAME.like(json.get("organization").toString()));
         }
 
-        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATION_ID, ORGANIZATION.ORGANIZATION_NAME, EMPLOYEE.as("Empl").SUPERVISOR_ID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
+        return dslContext.select(EMPLOYEE.as("Empl").ID, EMPLOYEE.as("Empl").SURNAME, EMPLOYEE.as("Empl").NAME, EMPLOYEE.as("Empl").PATRONYMIC, EMPLOYEE.as("Empl").ORGANIZATIONID, ORGANIZATION.ORGANIZATIONNAME, EMPLOYEE.as("Empl").SUPERVISORID, EMPLOYEE.as("Supv").SURNAME.as("supervisorName"))
                 .from(EMPLOYEE.as("Empl"))
                 .join(ORGANIZATION)
-                .on(EMPLOYEE.as("Empl").ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .on(EMPLOYEE.as("Empl").ORGANIZATIONID.equal(ORGANIZATION.ID))
                 .leftJoin(EMPLOYEE.as("Supv"))
-                .on(EMPLOYEE.as("Empl").SUPERVISOR_ID.eq(EMPLOYEE.as("Supv").ID))
+                .on(EMPLOYEE.as("Empl").SUPERVISORID.eq(EMPLOYEE.as("Supv").ID))
                 .where(condition)
                 .orderBy(EMPLOYEE.as("Empl").ID)
                 .offset(start)
@@ -269,13 +269,13 @@ public class EmployeeRepository {
         }
 
         if (json.get("organization").toString().length() > 0) {
-            condition = condition.and(ORGANIZATION.ORGANIZATION_NAME.like(json.get("organization").toString()));
+            condition = condition.and(ORGANIZATION.ORGANIZATIONNAME.like(json.get("organization").toString()));
         }
 
         return dslContext.selectCount()
                 .from(EMPLOYEE)
                 .fullJoin(ORGANIZATION)
-                .on(EMPLOYEE.ORGANIZATION_ID.eq(ORGANIZATION.ID))
+                .on(EMPLOYEE.ORGANIZATIONID.eq(ORGANIZATION.ID))
                 .where(condition)
                 .fetchOne()
                 .into(Integer.class);

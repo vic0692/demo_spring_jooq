@@ -1,4 +1,7 @@
-var app = angular.module('app', ['ngRoute']);
+var angular = require('angular');
+var ngRoute = require('angular-route');
+
+var app = angular.module('app', [ngRoute]);
 
 app.config(function ($routeProvider, $locationProvider) {
     $routeProvider
@@ -72,7 +75,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
                         elem.href = '#/employees/list';
                         elem.innerHTML = num + ' ';
                         elem.setAttribute('value', num);
-                        //elem.setAttribute('ng-click', 'getPage('+num+')');
                         pagingDiv.appendChild(elem);
                     }
                 }
@@ -95,7 +97,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
     };
 
     $scope.getPage = function (page) {
-        /*Копипаст пагинации + допил на нерисовку дублей*/
         $scope.employeeSearch = "";
         $scope.organizationSearch = "";
 
@@ -149,7 +150,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
 
         if (page != 1) {
             var element = angular.element(page);
-            //console.log(element[0].getAttribute('value'));
             $http.get('http://localhost:8080/employee/getPage/' + element[0].getAttribute('value'))
                 .then(function (result) {
                     $scope.employees = result.data;
@@ -172,7 +172,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             search.organization = "";
         }
         var json = JSON.stringify(search);
-        //console.log(search);
         $scope.pagingDiv = document.getElementsByName("paging")[0];
 
         $http.post('http://localhost:8080/employee/employeeFilteredCount', json)
@@ -228,8 +227,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
 
     $scope.getFilteredPage = function (page, employee, organization) {
         /*Копипаст пагинации + допил на нерисовку дублей*/
-        /*$scope.employeeSearch = "";
-        $scope.organizationSearch = "";*/
 
         var search = {employee: employee, organization: organization};
         var json = JSON.stringify(search);
@@ -365,7 +362,6 @@ app.controller('employeeController', function ($http, $scope, $route, $routePara
             })
     };
 
-    /*ДОПИЛ НА ЕСЛИ НЕТ ЕЩЕ СУПЕРВИЗОРОВ*/
     $scope.getOrganizationId = function() {
         var sel = document.getElementsByName("organizationSelect")[0];
         var idx = sel.selectedIndex;
@@ -580,150 +576,6 @@ app.controller('organizationController', function ($http, $scope, $route, $route
             })
     };
 
-    /*$scope.getEmployees = function () {
-        /!*Получить число страниц и сделать отрисовку*!/
-        $http.get('http://localhost:8080/employee/employeeCount')
-            .then(function(result) {
-                /!*Число записей*!/
-                $scope.employeesCount = result.data;
-                console.log($scope.employeesCount);
-                /!*Число страниц*!/
-                $scope.employeePagesCount = parseInt($scope.employeesCount / $scope.pageSize);
-                if ($scope.employeesCount / $scope.pageSize > $scope.employeePagesCount) {
-                    $scope.employeePagesCount++;
-                }
-
-                /!*Рисуем пагинацию*!/
-                var pagingDiv = document.getElementsByName("paging")[0];
-                console.log(pagingDiv);
-
-                if ($scope.employeePagesCount > 1) {
-                    for (var i = 1; i < $scope.employeePagesCount; i++) {
-                        var elem = document.createElement('a');
-                        var num = i+1;
-                        elem.href = '#/employees/list';
-                        elem.innerHTML = num + ' ';
-                        elem.setAttribute('value', num);
-                        //elem.setAttribute('ng-click', 'getPage('+num+')');
-                        pagingDiv.appendChild(elem);
-                    }
-                }
-
-                console.log($scope.employeePagesCount);
-            })
-            .catch(function(result) {
-                console.log('error get employee list');
-            })
-
-        /!*Получаем первую страницу*!/
-        $http.get('http://localhost:8080/employee/getPage/1')
-            .then(function(result) {
-                $scope.employees = result.data;
-                console.log('success params', $scope.params);
-            })
-            .catch(function (result) {
-                console.log('error get employee list');
-            })
-    };
-
-    $scope.getPage = function (page) {
-        /!*Копипаст пагинации + допил на нерисовку дублей*!/
-        $scope.employeeSearch = "";
-        $scope.organizationSearch = "";
-
-        $http.get('http://localhost:8080/employee/employeeCount')
-            .then(function(result) {
-                /!*Число записей*!/
-                var pagingDiv = document.getElementsByName("paging")[0];
-
-                while (pagingDiv.children.length > 1) {
-                    pagingDiv.removeChild(pagingDiv.lastChild);
-                }
-
-                $scope.employeesCount = result.data;
-                console.log($scope.employeesCount);
-                /!*Число страниц*!/
-                $scope.employeePagesCount = parseInt($scope.employeesCount / $scope.pageSize);
-                if ($scope.employeesCount / $scope.pageSize > $scope.employeePagesCount) {
-                    $scope.employeePagesCount++;
-                }
-
-                /!*Рисуем пагинацию*!/
-                var pagingDiv = document.getElementsByName("paging")[0];
-                console.log(pagingDiv);
-
-                if ($scope.employeePagesCount > 1) {
-                    for (var i = 1; i < $scope.employeePagesCount; i++) {
-                        var elem = document.createElement('a');
-                        var num = i+1;
-                        elem.href = '#/employees/list';
-                        elem.innerHTML = num + ' ';
-                        elem.setAttribute('value', num);
-                        //elem.setAttribute('ng-click', 'getPage('+num+')');
-                        pagingDiv.appendChild(elem);
-                    }
-                }
-
-                console.log($scope.employeePagesCount);
-            })
-            .catch(function(result) {
-                console.log('error get employee list');
-            })
-
-        if (page != 1) {
-            var element = angular.element(page);
-            //console.log(element[0].getAttribute('value'));
-            $http.get('http://localhost:8080/employee/getPage/' + element[0].getAttribute('value'))
-                .then(function (result) {
-                    $scope.employees = result.data;
-                })
-        }
-        else {
-            $http.get('http://localhost:8080/employee/getPage/1')
-                .then(function (result) {
-                    $scope.employees = result.data;
-                })
-        }
-    }
-
-    /!*Дичь) лучше бэк*!/
-    $scope.filterEmployee = function(employee, organization) {
-        var employeesAll = [];
-        var resultList = [];
-        $http.get('http://localhost:8080/employee/listSup') //получил список объектов
-            .then(function (result) {
-                employeesAll = result.data;
-
-                employeesAll.forEach(function (item, i) {
-                    console.log(item, i);
-                    if(item.surname === employee || item.organizationName === organization) {
-                        resultList.push(item);
-                    }
-                })
-                console.log(resultList);
-                $scope.employees = resultList;
-
-                var pagingDiv = document.getElementsByName("paging")[0];
-                while (pagingDiv.children.length > 1) {
-                    pagingDiv.removeChild(pagingDiv.lastChild);
-                }
-                console.log(pagingDiv);
-            })
-            .catch(function (result) {
-                console.log('error get employee list');
-            });
-
-        /!*console.log(employee, organization);
-        var search = {employee: employee, organization: organization};
-        console.log(search);
-        $scope.pagingDiv = document.getElementsByName("paging")[0];
-
-        $http.get('http://localhost:8080/employee/employeeFilteredCount', search)
-            .then(function (result) {
-                console.log(result);
-            })*!/
-    }*/
-
     $scope.getOrganizationById = function () {
         var va;
         $http.get('http://localhost:8080/organization/' + $scope.params.id)
@@ -732,8 +584,6 @@ app.controller('organizationController', function ($http, $scope, $route, $route
                 $scope.organization = result.data;
 
                 $scope.setParentOrganizationsOnForm(result.data.parentOrganizationId, result.data.id);
-                /*va = $scope.setSupervisorOnForm(result.data.organizationId, result.data.supervisorId, result.data.id);
-                console.log(va);*/
             })
             .catch(function (result) {
                 console.log('fail get organization by id', $scope.params.id);

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Collection;
 import java.util.List;
 
-import static com.example.jooq.demo_jooq.introduction.db.Sequences.ORGANIZATION_ID_SEQ1;
+import static com.example.jooq.demo_jooq.introduction.db.Sequences.ORGANIZATION_ID_SEQ;
 import static com.example.jooq.demo_jooq.introduction.db.tables.Organization.ORGANIZATION;
 import static com.example.jooq.demo_jooq.introduction.db.tables.Employee.EMPLOYEE;
 import static org.jooq.impl.DSL.*;
@@ -40,12 +40,12 @@ public class OrganizationRepository {
     }
 
     public Integer createOrganization(OrganizationEntity organizationEntity) {
-        Integer id = dslContext.nextval(ORGANIZATION_ID_SEQ1);
+        Integer id = dslContext.nextval(ORGANIZATION_ID_SEQ);
 
         Organization organization = new Organization();
         organization.setId(id);
-        organization.setOrganizationName(organizationEntity.getOrganizationName());
-        organization.setParentOrganization(organizationEntity.getParentOrganizationId());
+        organization.setOrganizationname(organizationEntity.getOrganizationName());
+        organization.setParentorganization(organizationEntity.getParentOrganizationId());
 
         organizationDao.insert(organization);
 
@@ -53,8 +53,8 @@ public class OrganizationRepository {
     }
 
     public Integer updateOrganization(Integer id, OrganizationEntity organization) {
-        dslContext.update(ORGANIZATION).set(ORGANIZATION.ORGANIZATION_NAME, organization.getOrganizationName())
-                .set(ORGANIZATION.PARENT_ORGANIZATION, organization.getParentOrganizationId())
+        dslContext.update(ORGANIZATION).set(ORGANIZATION.ORGANIZATIONNAME, organization.getOrganizationName())
+                .set(ORGANIZATION.PARENTORGANIZATION, organization.getParentOrganizationId())
                 .where(ORGANIZATION.ID.eq(id))
                 .execute();
         return id;
@@ -67,7 +67,7 @@ public class OrganizationRepository {
     }
 
     public List<Integer> getAllParentOrganizationsByIds(List<Integer> ids) {
-        return dslContext.selectDistinct(ORGANIZATION.PARENT_ORGANIZATION)
+        return dslContext.selectDistinct(ORGANIZATION.PARENTORGANIZATION)
                 .from(ORGANIZATION)
                 .where(ORGANIZATION.ID.in(ids))
                 .fetch()
@@ -75,26 +75,26 @@ public class OrganizationRepository {
     }
 
     public List<Integer> getAllParentOrganizations() {
-        return dslContext.selectDistinct(ORGANIZATION.PARENT_ORGANIZATION)
+        return dslContext.selectDistinct(ORGANIZATION.PARENTORGANIZATION)
                 .from(ORGANIZATION)
                 .fetch()
                 .into(Integer.TYPE);
     }
 
     public Collection<Integer> getOrganizationsWithSuborganizationsByIds(List<Integer> ids) {
-        return dslContext.selectDistinct(ORGANIZATION.PARENT_ORGANIZATION)
+        return dslContext.selectDistinct(ORGANIZATION.PARENTORGANIZATION)
                 .from(ORGANIZATION)
-                .where(ORGANIZATION.PARENT_ORGANIZATION.in(ids))
+                .where(ORGANIZATION.PARENTORGANIZATION.in(ids))
                 .fetch()
                 .into(Integer.TYPE);
     }
 
     public List<EmployeeCountEntity> getEmployeeCount() {
-        return dslContext.select(ORGANIZATION.ORGANIZATION_NAME, DSL.count(EMPLOYEE.ID).as("employeeCount"))
+        return dslContext.select(ORGANIZATION.ORGANIZATIONNAME, DSL.count(EMPLOYEE.ID).as("employeeCount"))
                 .from(ORGANIZATION)
                 .fullJoin(EMPLOYEE)
-                .on(ORGANIZATION.ID.eq(EMPLOYEE.ORGANIZATION_ID))
-                .groupBy(ORGANIZATION.ORGANIZATION_NAME)
+                .on(ORGANIZATION.ID.eq(EMPLOYEE.ORGANIZATIONID))
+                .groupBy(ORGANIZATION.ORGANIZATIONNAME)
                 .fetch()
                 .into(EmployeeCountEntity.class);
     }
@@ -103,9 +103,9 @@ public class OrganizationRepository {
         return dslContext.select(EMPLOYEE.fields())
                 .from(EMPLOYEE)
                 .fullJoin(ORGANIZATION)
-                .on(EMPLOYEE.ORGANIZATION_ID.equal(ORGANIZATION.ID))
+                .on(EMPLOYEE.ORGANIZATIONID.equal(ORGANIZATION.ID))
                 .where(ORGANIZATION.ID.equal(id))
-                .and(EMPLOYEE.SUPERVISOR_ID.isNull())
+                .and(EMPLOYEE.SUPERVISORID.isNull())
                 .fetch()
                 .into(EmployeeEntity.class);
     }
@@ -114,7 +114,7 @@ public class OrganizationRepository {
         return dslContext.select(ORGANIZATION.fields())
                 .from(ORGANIZATION)
                 .where(ORGANIZATION.ID.equal(
-                        dslContext.select(ORGANIZATION.PARENT_ORGANIZATION)
+                        dslContext.select(ORGANIZATION.PARENTORGANIZATION)
                                 .from(ORGANIZATION)
                                 .where(ORGANIZATION.ID.equal(id))
                 ))
@@ -125,16 +125,16 @@ public class OrganizationRepository {
     public List<OrganizationRecursiveEntity> getOrganizationTree() {
         Field<Integer[]> path = array(ORGANIZATION.ID).as("path");
         Field<Integer> level = inline(1).as("level");
-        Field<String> display = inline("- ").concat(ORGANIZATION.ORGANIZATION_NAME).as("display");
+        Field<String> display = inline("- ").concat(ORGANIZATION.ORGANIZATIONNAME).as("display");
 
         return dslContext.withRecursive("r").as(
-                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATION_NAME, ORGANIZATION.PARENT_ORGANIZATION, path, level, display)
+                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATIONNAME, ORGANIZATION.PARENTORGANIZATION, path, level, display)
                         .from(ORGANIZATION)
-                        .where(ORGANIZATION.PARENT_ORGANIZATION.isNull())
+                        .where(ORGANIZATION.PARENTORGANIZATION.isNull())
                         .unionAll(
-                                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATION_NAME, ORGANIZATION.PARENT_ORGANIZATION, PostgresDSL.arrayAppend(path, ORGANIZATION.ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(ORGANIZATION.ID))
+                                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATIONNAME, ORGANIZATION.PARENTORGANIZATION, PostgresDSL.arrayAppend(path, ORGANIZATION.ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(ORGANIZATION.ID))
                                         .from(ORGANIZATION)
-                                        .join(table(name("r"))).on(field(name("r", "id"), Integer.class).eq(ORGANIZATION.PARENT_ORGANIZATION)))
+                                        .join(table(name("r"))).on(field(name("r", "id"), Integer.class).eq(ORGANIZATION.PARENTORGANIZATION)))
 
         )
                 .select()
@@ -147,16 +147,16 @@ public class OrganizationRepository {
     public List<OrganizationRecursiveEntity> getOrganizationTreeById(Integer id) {
         Field<Integer[]> path = array(ORGANIZATION.ID).as("path");
         Field<Integer> level = inline(1).as("level");
-        Field<String> display = inline("- ").concat(ORGANIZATION.ORGANIZATION_NAME).as("display");
+        Field<String> display = inline("- ").concat(ORGANIZATION.ORGANIZATIONNAME).as("display");
 
         return dslContext.withRecursive("r").as(
-                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATION_NAME, ORGANIZATION.PARENT_ORGANIZATION, path, level, display)
+                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATIONNAME, ORGANIZATION.PARENTORGANIZATION, path, level, display)
                         .from(ORGANIZATION)
-                        .where(ORGANIZATION.PARENT_ORGANIZATION.eq(id))
+                        .where(ORGANIZATION.PARENTORGANIZATION.eq(id))
                         .unionAll(
-                                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATION_NAME, ORGANIZATION.PARENT_ORGANIZATION, PostgresDSL.arrayAppend(path, ORGANIZATION.ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(ORGANIZATION.ID))
+                                select(ORGANIZATION.ID, ORGANIZATION.ORGANIZATIONNAME, ORGANIZATION.PARENTORGANIZATION, PostgresDSL.arrayAppend(path, ORGANIZATION.ID), level.add(inline(1)), repeat(inline(" "), level).concat("- ").concat(ORGANIZATION.ID))
                                         .from(ORGANIZATION)
-                                        .join(table(name("r"))).on(field(name("r", "id"), Integer.class).eq(ORGANIZATION.PARENT_ORGANIZATION)))
+                                        .join(table(name("r"))).on(field(name("r", "id"), Integer.class).eq(ORGANIZATION.PARENTORGANIZATION)))
 
         )
                 .select()
@@ -167,30 +167,30 @@ public class OrganizationRepository {
     }
 
     public List<OrganizationParentEntity> getOrganizationParentName() {
-        return dslContext.select(ORGANIZATION.as("org").ID.as("id"), ORGANIZATION.as("org").ORGANIZATION_NAME.as("organizationName"), ORGANIZATION.as("org").PARENT_ORGANIZATION.as("parentOrganizationId"), ORGANIZATION.as("parent").ORGANIZATION_NAME.as("parentOrganizationName"))
+        return dslContext.select(ORGANIZATION.as("org").ID.as("id"), ORGANIZATION.as("org").ORGANIZATIONNAME.as("organizationName"), ORGANIZATION.as("org").PARENTORGANIZATION.as("parentOrganizationId"), ORGANIZATION.as("parent").ORGANIZATIONNAME.as("parentOrganizationName"))
                 .from(ORGANIZATION.as("org"))
                 .leftJoin(ORGANIZATION.as("parent"))
-                .on(ORGANIZATION.as("org").PARENT_ORGANIZATION.eq(ORGANIZATION.as("parent").ID))
+                .on(ORGANIZATION.as("org").PARENTORGANIZATION.eq(ORGANIZATION.as("parent").ID))
                 .fetch()
                 .into(OrganizationParentEntity.class);
     }
 
     public List<OrganizationParentEntity> getRoot() {
-        return dslContext.select(ORGANIZATION.as("org").ID.as("id"), ORGANIZATION.as("org").ORGANIZATION_NAME.as("organizationName"), ORGANIZATION.as("org").PARENT_ORGANIZATION.as("parentOrganizationId"), ORGANIZATION.as("parent").ORGANIZATION_NAME.as("parentOrganizationName"))
+        return dslContext.select(ORGANIZATION.as("org").ID.as("id"), ORGANIZATION.as("org").ORGANIZATIONNAME.as("organizationName"), ORGANIZATION.as("org").PARENTORGANIZATION.as("parentOrganizationId"), ORGANIZATION.as("parent").ORGANIZATIONNAME.as("parentOrganizationName"))
                 .from(ORGANIZATION.as("org"))
                 .leftJoin(ORGANIZATION.as("parent"))
-                .on(ORGANIZATION.as("org").PARENT_ORGANIZATION.eq(ORGANIZATION.as("parent").ID))
-                .where(ORGANIZATION.as("org").PARENT_ORGANIZATION.isNull())
+                .on(ORGANIZATION.as("org").PARENTORGANIZATION.eq(ORGANIZATION.as("parent").ID))
+                .where(ORGANIZATION.as("org").PARENTORGANIZATION.isNull())
                 .fetch()
                 .into(OrganizationParentEntity.class);
     }
 
     public List<OrganizationParentEntity> getBranch(Integer id) {
-        return dslContext.select(ORGANIZATION.as("org").ID.as("id"), ORGANIZATION.as("org").ORGANIZATION_NAME.as("organizationName"), ORGANIZATION.as("org").PARENT_ORGANIZATION.as("parentOrganizationId"), ORGANIZATION.as("parent").ORGANIZATION_NAME.as("parentOrganizationName"))
+        return dslContext.select(ORGANIZATION.as("org").ID.as("id"), ORGANIZATION.as("org").ORGANIZATIONNAME.as("organizationName"), ORGANIZATION.as("org").PARENTORGANIZATION.as("parentOrganizationId"), ORGANIZATION.as("parent").ORGANIZATIONNAME.as("parentOrganizationName"))
                 .from(ORGANIZATION.as("org"))
                 .leftJoin(ORGANIZATION.as("parent"))
-                .on(ORGANIZATION.as("org").PARENT_ORGANIZATION.eq(ORGANIZATION.as("parent").ID))
-                .where(ORGANIZATION.as("org").PARENT_ORGANIZATION.eq(id))
+                .on(ORGANIZATION.as("org").PARENTORGANIZATION.eq(ORGANIZATION.as("parent").ID))
+                .where(ORGANIZATION.as("org").PARENTORGANIZATION.eq(id))
                 .fetch()
                 .into(OrganizationParentEntity.class);
     }
